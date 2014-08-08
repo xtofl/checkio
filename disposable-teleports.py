@@ -1,6 +1,6 @@
 from cookielib import reach
 from itertools import imap, ifilter
-from functools import partial
+
 
 def dest(port, src):
     return port.replace(src, "")
@@ -33,10 +33,11 @@ def port(src, dst):
 
 
 def ifind_paths(station, ports):
-    direct_ports = filter(port_connects_to(station), ports)
-    for i, port in enumerate(direct_ports):
+    direct_ports = filter(lambda x: port_connects_to(station)(x[1]), enumerate(ports))
+    for i, port in direct_ports:
         new_ports = removed_i(i, ports)
         new_station = dest(port, station)
+        #print("{}-{}th port {} to {}: remaining ports: {}".format(ports, i, port, new_station, new_ports))
         yield new_station
         for rest_path in ifind_paths(new_station, new_ports):
             yield new_station + rest_path
@@ -51,6 +52,7 @@ def checkio(portcsv):
     all_paths = ifind_paths(station="1", ports=ports(portcsv))
     paths = ifilter(contains_all_and_ends_in("12345678", "1"), all_paths)
     first_path = "1" + paths.next()
+    print("{} => {}".format(portcsv, first_path))
     return first_path
 
 from unittest import TestCase
