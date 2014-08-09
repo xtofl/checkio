@@ -62,9 +62,9 @@ class Cave:
 
 
 class Graph:
-    def __init__(self, nodes, arcs):
-        self.nodes = nodes
-        self.arcs = arcs
+    def __init__(self, vertices, edges):
+        self.vertices = vertices
+        self.edges = edges
 
 def bat_graph(cave):
     nodes = cave.bats
@@ -90,7 +90,7 @@ class AlphaBatTest(TestCase):
 
     def testArcsFromBats(self):
         cave = Cave(bats=[Bat(0, 0), Bat(1, 1)], alpha=Bat(1, 2), walls=[])
-        self.assertEqual({(Bat(0, 0), Bat(1, 1)), (Bat(1, 1), Bat(0, 0))}, bat_graph(cave).arcs)
+        self.assertEqual({(Bat(0, 0), Bat(1, 1)), (Bat(1, 1), Bat(0, 0))}, bat_graph(cave).edges)
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
