@@ -5,34 +5,43 @@ from unittest import TestCase
 
 def parse_cave(lines):
     bats = []
-    alpha = None
+    alpha = []
     walls = []
+
     def noop(*args):
         pass
     def addbat(r, c):
         bats.append((r,c))
     def addwall(r, c):
-        walls.append((r,c))
+        walls.append((r, c))
     def addalpha(r, c):
-        alpha = (r, c)
-    for r, line in enumerate(lines):
-        for c, cell in enumerate(line):
-            {'-': noop,
+        alpha.append((r, c))
+
+    actions = {'-': noop,
              'B': addbat,
              'A': addalpha,
-             'W': addwall}[cell](r,c)
+             'W': addwall}
+    for r, line in enumerate(lines):
+        for c, cell in enumerate(line):
+            actions[cell](r, c)
 
-    return Cave(bats=bats, alpha=alpha, walls=walls)
+    return Cave(bats=bats, alpha=alpha[0], walls=walls)
 
 
-class Cave(object):
+class Cave:
     def __init__(self, bats, alpha, walls):
         self.bats = bats
         self.alpha = alpha
         self.walls = walls
 
     def __eq__(self, other):
-        return self.bats, self.alpha, self.walls == other.bats, other.alpha, other.walls
+        return (self.bats, self.walls, self.alpha) == (other.bats, other.walls, other.alpha)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __repr__(self):
+        return "alpha: {}; bats: {}, walls: {}".format(self.alpha, self.bats, self.walls)
 
 
 def checkio(cave_lines):
@@ -45,7 +54,11 @@ class AlphaBatTest(TestCase):
 
     def testParsingCave(self):
         small = ["B-", "-A"]
-        self.assertEqual(Cave(bats=[(1, 1)], alpha=(2, 2), walls=[]), parse_cave(small))
+        self.assertEqual(Cave(bats=[(0, 0)], alpha=(1, 1), walls=[]), parse_cave(small))
+        medium = ["B--",
+                  "-B-",
+                  "A-W"]
+        self.assertEqual(Cave(bats=[(0, 0), (1, 1)], alpha=(2, 0), walls=[(2, 2)]), parse_cave(medium))
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
