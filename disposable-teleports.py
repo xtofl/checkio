@@ -3,16 +3,38 @@ from itertools import imap, ifilter
 
 
 def dest(port, src):
-    return port.replace(src, "")
+    return port.dest(src)
 
 
 def connects_to(port, station):
-    return station in port
+    return port.connects(station)
 
 
 def ports(csv):
-    return csv.split(",")
+    return map(port, csv.split(","))
 
+def port(letters):
+    return Port(letters[0], letters[1])
+
+class Port:
+    def __init__(self, src, dst):
+        self.src = src
+        self.dst = dst
+
+    def connects(self, station):
+        return station in [self.src, self.dst]
+
+    def dest(self, src):
+        if src == self.src:
+            return self.dst
+        if src == self.dst:
+            return self.src
+
+    def __eq__(self, other):
+        return (self.src, self.dst) == (other.src, other.dst)
+
+    def __ne__(self, other):
+        return not (self == other)
 
 def removed_i(i, lst):
     return lst[:i] + lst[i+1:]
@@ -20,10 +42,6 @@ def removed_i(i, lst):
 
 def removed_v(v, lst):
     return filter(lambda x: x != v, lst)
-
-
-def port(src, dst):
-    return src + dst
 
 
 def ifind_paths(station, ports):
@@ -54,12 +72,12 @@ from unittest import TestCase
 class Test(TestCase):
 
     def testPortsFromCsv(self):
-        self.assertEqual(ports("12"), ["12"])
-        self.assertEqual(ports("12,32,53"), ["12","32","53"])
+        self.assertEqual(ports("12"), map(port, ["12"]))
+        self.assertEqual(ports("12,32,53"), map(port, ["12","32","53"]))
 
     def testReachable(self):
-        self.assertTrue(connects_to("12", "1"))
-        self.assertTrue(connects_to("21", "1"))
+        self.assertTrue(connects_to(port("12"), "1"))
+        self.assertTrue(connects_to(port("21"), "1"))
 
     def testRemove(self):
         self.assertEqual([], removed_i(0, [1]))
