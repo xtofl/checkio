@@ -7,6 +7,8 @@ def parse_cave(lines):
     bats = []
     alpha = None
     walls = []
+    def noop(*args):
+        pass
     def addbat(r, c):
         bats.append((r,c))
     def addwall(r, c):
@@ -14,13 +16,23 @@ def parse_cave(lines):
     def addalpha(r, c):
         alpha = (r, c)
     for r, line in enumerate(lines):
-        for c, cell in line:
+        for c, cell in enumerate(line):
             {'-': noop,
              'B': addbat,
              'A': addalpha,
              'W': addwall}[cell](r,c)
 
-    return {'bats': bats, 'alpha': alpha, 'walls': walls}
+    return Cave(bats=bats, alpha=alpha, walls=walls)
+
+
+class Cave(object):
+    def __init__(self, bats, alpha, walls):
+        self.bats = bats
+        self.alpha = alpha
+        self.walls = walls
+
+    def __eq__(self, other):
+        return self.bats, self.alpha, self.walls == other.bats, other.alpha, other.walls
 
 
 def checkio(cave_lines):
@@ -31,7 +43,11 @@ def checkio(cave_lines):
 
 class AlphaBatTest(TestCase):
 
-    def testGiven(self):
+    def testParsingCave(self):
+        small = ["B-", "-A"]
+        self.assertEqual(Cave(bats=[(1, 1)], alpha=(2, 2), walls=[]), parse_cave(small))
+
+    def _testGiven(self):
         self.assertAlmostEqual(2.83,
             checkio([
                 "B--",
