@@ -1,3 +1,5 @@
+from math import sqrt
+
 __author__ = 'xtofl'
 
 
@@ -77,6 +79,11 @@ def checkio(cave_lines):
     return length(shortest_path(graph))
 
 
+def distance(p0, p1):
+    delta = (p1[0] - p0[0], p1[1] - p0[1])
+    return sqrt(delta[0] * delta[0] + delta[1] * delta[1])
+
+
 class AlphaBatTest(TestCase):
 
     def testParsingCave(self):
@@ -91,6 +98,12 @@ class AlphaBatTest(TestCase):
     def testArcsFromBats(self):
         cave = Cave(bats=[Bat(0, 0), Bat(1, 1)], alpha=Bat(1, 2), walls=[])
         self.assertEqual({(Bat(0, 0), Bat(1, 1)), (Bat(1, 1), Bat(0, 0))}, bat_graph(cave).edges)
+
+
+    def testBatsDistance(self):
+        self.assertAlmostEqual(1, distance((0, 0), (1, 0)))
+        self.assertAlmostEqual(2, distance((0, 0), (0, 2)))
+        self.assertAlmostEqual(1.41, distance((0, 0), (1, 1)), places=2)
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
