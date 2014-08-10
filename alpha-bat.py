@@ -160,7 +160,7 @@ class AlphaBatTest(TestCase):
 
         a, b, c, d = map(DistanceOne, "abcd")
         self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
-        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, b, make_edges((a, b), (b, d), (b, c), (c, d))))
+        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
