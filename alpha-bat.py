@@ -1,3 +1,5 @@
+from collections import namedtuple
+from itertools import imap, ifilter, starmap, ifilterfalse, chain, islice
 from math import sqrt
 
 __author__ = 'xtofl'
@@ -84,7 +86,38 @@ def distance(p0, p1):
     return sqrt(delta[0] * delta[0] + delta[1] * delta[1])
 
 
+class Edge(namedtuple("Edge", ("begin", "end", "weight"))):
+    def connects(self, begin, end):
+        return begin == self.begin and end == self.end
+
+
+def paths(begin, end, edges):
+    direct_edges = ifilter(lambda e: e.connects(begin, end), edges)
+    for e in direct_edges:
+        yield [e]
+
+    indirect_edges = ifilter(lambda e: e.begin == begin, edges)
+    for e in indirect_edges:
+        rest_edges = ifilter(lambda edge: edge != e, edges)
+        for p in paths(e.end, end, rest_edges):
+            yield [e] + p
+
+
+def shortest_path(begin, end, edges):
+    return 1
+
+
+def length(path):
+    return sum(map(lambda edge: edge.weight, path))
+
 class AlphaBatTest(TestCase):
+
+    def testPaths(self):
+        def make_edges(*args):
+            return [Edge(*(arg+(1,))) for arg in args]
+        self.assertTrue([Edge(1, 2, 1)] in paths(1, 2, make_edges((1, 2))))
+        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((1, 2), (2, 3))))
+        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3))))
 
     def testParsingCave(self):
         small = ["B-", "-A"]
@@ -104,6 +137,10 @@ class AlphaBatTest(TestCase):
         self.assertAlmostEqual(1, distance((0, 0), (1, 0)))
         self.assertAlmostEqual(2, distance((0, 0), (0, 2)))
         self.assertAlmostEqual(1.41, distance((0, 0), (1, 1)), places=2)
+
+    def testShortestPath(self):
+        a, b, c, d = 'a', 'b', 'c', 'd'
+        self.assertEqual(1, shortest_path(begin=a, end=b, edges={(a, b): 1}))
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
