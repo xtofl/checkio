@@ -98,7 +98,7 @@ def paths(begin, end, edges):
 
     indirect_edges = ifilter(lambda e: e.begin == begin, edges)
     for e in indirect_edges:
-        rest_edges = ifilter(lambda edge: edge != e, edges)
+        rest_edges = filter(lambda edge: edge != e, edges)
         for p in paths(e.end, end, rest_edges):
             yield [e] + p
 
