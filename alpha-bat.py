@@ -140,10 +140,16 @@ class AlphaBatTest(TestCase):
         self.assertRaises(ValueError, parse_cave, ["B-", "--"])
 
     def testArcsFromBats(self):
-        bats = [Bat(0, 0), Bat(1, 1)]
-        alpha = Bat(1, 2)
-        cave = Cave(bats=bats, alpha=alpha, walls=[])
+        bats = [Bat(0, 0), Bat(2, 3)]
+        alpha = Bat(3, 3)
+        cave = Cave(bats=bats, alpha=alpha,
+                    walls=[])
         self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[0], alpha), (bats[1], alpha)]), bat_graph(cave).edges)
+
+        cave = Cave(bats=bats, alpha=alpha,
+                    walls=[(1, 1)])
+        self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[1], alpha)]),
+                         bat_graph(cave).edges)
 
 
     def testBatsDistance(self):
