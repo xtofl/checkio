@@ -17,9 +17,9 @@ def parse_cave(lines):
     def addbat(r, c):
         bats.append(Bat(r,c))
     def addwall(r, c):
-        walls.append((r, c))
+        walls.append(Wall((r, c)))
     def addalpha(r, c):
-        alpha.append(Bat(r, c))
+        alpha.append(AlphaBat(r, c))
 
     actions = {'-': noop,
              'B': addbat,
@@ -52,6 +52,10 @@ class Bat:
         return "Bat{}".format(self.where)
 
 
+class AlphaBat(Bat):
+    def __repr__(self):
+        return "Alpha"+super(AlphaBat, self).__repr__()
+
 class Cave:
     def __init__(self, bats, alpha, walls):
         self.bats = bats
@@ -75,8 +79,9 @@ class Graph:
 
 def bat_graph(cave):
     nodes = cave.bats
-    arcs = frozenset([Edge(x, y) for x in nodes for y in nodes if not x is y] + [Edge(x, cave.alpha) for x in nodes])
-    return Graph(nodes, arcs)
+    arcs = [Edge(x, y) for x in nodes for y in nodes if not x is y] + [Edge(x, cave.alpha) for x in nodes]
+    arcs_no_walls = ifilterfalse(lambda arc: any(map(lambda wall: wall.intersects(arc), cave.walls)), arcs)
+    return Graph(nodes, frozenset(arcs_no_walls))
 
 def checkio(cave_lines):
     cave = parse_cave(cave_lines)
@@ -94,6 +99,12 @@ class Edge(namedtuple("Edge", ("begin", "end"))):
         return begin == self.begin and end == self.end
     def weight(self):
         return self.begin.distance_to(self.end)
+
+class Wall(namedtuple("Wall", ("center"))):
+    def intersects(self, arc):
+        return False
+
+
 
 
 def paths(begin, end, edges):
@@ -136,7 +147,7 @@ class AlphaBatTest(TestCase):
         medium = ["B--",
                   "-B-",
                   "A-W"]
-        self.assertEqual(Cave(bats=[Bat(0, 0), Bat(1, 1)], alpha=Bat(2, 0), walls=[(2, 2)]), parse_cave(medium))
+        self.assertEqual(Cave(bats=[Bat(0, 0), Bat(1, 1)], alpha=Bat(2, 0), walls=[Wall((2, 2))]), parse_cave(medium))
         self.assertRaises(ValueError, parse_cave, ["B-", "--"])
 
     def testArcsFromBats(self):
@@ -147,7 +158,7 @@ class AlphaBatTest(TestCase):
         self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[0], alpha), (bats[1], alpha)]), bat_graph(cave).edges)
 
         cave = Cave(bats=bats, alpha=alpha,
-                    walls=[(1, 1)])
+                    walls=[Wall((1, 1))])
         self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[1], alpha)]),
                          bat_graph(cave).edges)
 
