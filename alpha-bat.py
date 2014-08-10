@@ -75,13 +75,13 @@ class Graph:
 
 def bat_graph(cave):
     nodes = cave.bats
-    arcs = frozenset([(x, y) for x in nodes for y in nodes if not x is y])
+    arcs = frozenset([Edge(x, y) for x in nodes for y in nodes if not x is y] + [Edge(x, cave.alpha) for x in nodes])
     return Graph(nodes, arcs)
 
 def checkio(cave_lines):
     cave = parse_cave(cave_lines)
     graph = bat_graph(cave)
-    return length(shortest_path(graph))
+    return length(shortest_path(cave.bats[0], cave.alpha, graph.edges))
 
 
 def distance(p0, p1):
@@ -140,8 +140,10 @@ class AlphaBatTest(TestCase):
         self.assertRaises(ValueError, parse_cave, ["B-", "--"])
 
     def testArcsFromBats(self):
-        cave = Cave(bats=[Bat(0, 0), Bat(1, 1)], alpha=Bat(1, 2), walls=[])
-        self.assertEqual({(Bat(0, 0), Bat(1, 1)), (Bat(1, 1), Bat(0, 0))}, bat_graph(cave).edges)
+        bats = [Bat(0, 0), Bat(1, 1)]
+        alpha = Bat(1, 2)
+        cave = Cave(bats=bats, alpha=alpha, walls=[])
+        self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[0], alpha), (bats[1], alpha)]), bat_graph(cave).edges)
 
 
     def testBatsDistance(self):
@@ -162,24 +164,24 @@ class AlphaBatTest(TestCase):
         self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
         self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
 
-    def _testGiven(self):
+    def testGiven(self):
         self.assertAlmostEqual(2.83,
             checkio([
                 "B--",
                 "---",
-                "--A"])
+                "--A"]), places=2
         )
         self.assertAlmostEqual(4,
             checkio([
                 "B-B",
                 "BW-",
-                "-BA"])
+                "-BA"]), places=2
         )
         self.assertAlmostEqual(12,
             checkio([
                 "BWB--B",
                 "-W-WW-",
-                "B-BWAB"])
+                "B-BWAB"]), places=2
         )
         self.assertAlmostEqual(9.24,
             checkio([
@@ -188,5 +190,5 @@ class AlphaBatTest(TestCase):
                 "-WA--B",
                 "-W-B--",
                 "-WWW-B",
-                "B-BWB-"])
+                "B-BWB-"]), places=2
         )
