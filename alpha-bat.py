@@ -181,6 +181,19 @@ class AlphaBatTest(TestCase):
         self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
         self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
 
+    def testWall(self):
+        def edge(a, b):
+            return Edge(begin=Bat(*a), end=Bat(*b))
+
+        self.assertTrue(Wall((1, 1)).intersects(edge((1, 0), (1, 2))))
+        self.assertTrue(Wall((1, 1)).intersects(edge((1, 2), (1, 0))))
+        self.assertTrue(Wall((1, 1)).intersects(edge((0, 1), (2, 1))))
+        self.assertTrue(Wall((1, 1)).intersects(edge((1, 0), (1, 2))))
+        self.assertFalse(Wall((1, 1)).intersects(edge((0, 0), (0, 2))))
+        self.assertFalse(Wall((1, 1)).intersects(edge((2, 0), (2, 2))))
+        self.assertFalse(Wall((1, 1)).intersects(edge((0, 0), (2, 0))))
+        self.assertFalse(Wall((1, 1)).intersects(edge((2, 0), (2, 2))))
+
     def testGiven(self):
         self.assertAlmostEqual(2.83,
             checkio([
