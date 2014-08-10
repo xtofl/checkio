@@ -36,6 +36,9 @@ class Bat:
     def __init__(self, row, col):
         self.where = (row, col)
 
+    def distance_to(self, other):
+        return distance(self.where, other.where)
+
     def __eq__(self, other):
         return self.where == other.where
 
@@ -86,9 +89,11 @@ def distance(p0, p1):
     return sqrt(delta[0] * delta[0] + delta[1] * delta[1])
 
 
-class Edge(namedtuple("Edge", ("begin", "end", "weight"))):
+class Edge(namedtuple("Edge", ("begin", "end"))):
     def connects(self, begin, end):
         return begin == self.begin and end == self.end
+    def weight(self):
+        return self.begin.distance_to(self.end)
 
 
 def paths(begin, end, edges):
@@ -104,24 +109,24 @@ def paths(begin, end, edges):
 
 
 def length(path):
-    return sum(map(lambda edge: edge.weight, path))
+    return sum(map(lambda edge: edge.weight(), path))
 
 def shortest_path(begin, end, edges):
     return min(paths(begin, end, edges), key=length)
 
 
 def make_edges(*args):
-    return [Edge(*(arg+(1,))) for arg in args]
+    return [Edge(*(arg)) for arg in args]
 
 class AlphaBatTest(TestCase):
 
     def testPaths(self):
 
-        self.assertTrue([Edge(1, 2, 1)] in paths(1, 2, make_edges((1, 2))))
-        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((1, 2), (2, 3))))
-        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3))))
-        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
-        self.assertTrue([Edge(1, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
+        self.assertTrue([Edge(1, 2)] in paths(1, 2, make_edges((1, 2))))
+        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((1, 2), (2, 3))))
+        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3))))
+        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
+        self.assertTrue([Edge(1, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
         self.assertTrue(make_edges((1, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
         self.assertTrue(make_edges((1, 2), (2, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
 
@@ -145,9 +150,17 @@ class AlphaBatTest(TestCase):
         self.assertAlmostEqual(1.41, distance((0, 0), (1, 1)), places=2)
 
     def testShortestPath(self):
-        a, b, c, d = 'a', 'b', 'c', 'd'
-        self.assertEqual([Edge(a, b, 1)], shortest_path(a, b, make_edges((a, b))))
-        self.assertEqual([Edge(a, b, 1), Edge(b, d, 1)], shortest_path(a, b, make_edges((a, b), (b, d), (b, c), (c, d))))
+        class DistanceOne:
+            def __init__(self, name):
+                self.name = name
+            def distance_to(self, other):
+                return 1
+            def __repr__(self):
+                return self.name
+
+        a, b, c, d = map(DistanceOne, "abcd")
+        self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
+        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, b, make_edges((a, b), (b, d), (b, c), (c, d))))
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
