@@ -103,21 +103,27 @@ def paths(begin, end, edges):
             yield [e] + p
 
 
-def shortest_path(begin, end, edges):
-    return 1
-
-
 def length(path):
     return sum(map(lambda edge: edge.weight, path))
+
+def shortest_path(begin, end, edges):
+    return min(paths(begin, end, edges), key=length)
+
+
+def make_edges(*args):
+    return [Edge(*(arg+(1,))) for arg in args]
 
 class AlphaBatTest(TestCase):
 
     def testPaths(self):
-        def make_edges(*args):
-            return [Edge(*(arg+(1,))) for arg in args]
+
         self.assertTrue([Edge(1, 2, 1)] in paths(1, 2, make_edges((1, 2))))
         self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((1, 2), (2, 3))))
         self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3))))
+        self.assertTrue([Edge(1, 2, 1), Edge(2, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
+        self.assertTrue([Edge(1, 3, 1)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
+        self.assertTrue(make_edges((1, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
+        self.assertTrue(make_edges((1, 2), (2, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
 
     def testParsingCave(self):
         small = ["B-", "-A"]
@@ -140,7 +146,8 @@ class AlphaBatTest(TestCase):
 
     def testShortestPath(self):
         a, b, c, d = 'a', 'b', 'c', 'd'
-        self.assertEqual(1, shortest_path(begin=a, end=b, edges={(a, b): 1}))
+        self.assertEqual([Edge(a, b, 1)], shortest_path(a, b, make_edges((a, b))))
+        self.assertEqual([Edge(a, b, 1), Edge(b, d, 1)], shortest_path(a, b, make_edges((a, b), (b, d), (b, c), (c, d))))
 
     def _testGiven(self):
         self.assertAlmostEqual(2.83,
