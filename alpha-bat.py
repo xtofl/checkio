@@ -157,19 +157,16 @@ class Wall(namedtuple("Wall", ("center"))):
         return any(intersections)
 
 class AStar:
-
-    @staticmethod
-    def make_neighbor_function(edges):
-        def f(node):
-            for e in ifilter(lambda edge: edge.begin == node, edges):
-                yield e
-        return f
+    """adapted from wikipedia http://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode"""
 
     @staticmethod
     def shortest_path(start, goal, edges, h=lambda vertex, goal: 0):
-        neighbor_edges = AStar.make_neighbor_function(edges)
-        closedset = set()
-        openset = set([start])
+        def neighbor_edges(node):
+            for e in ifilter(lambda edge: edge.begin == node, edges):
+                yield e
+
+        closed_set = set()
+        open_set = set([start])
         came_from = dict()
 
         g = dict()
@@ -177,26 +174,26 @@ class AStar:
         f = dict()
         f[start] = g[start] + h(start, goal)
 
-        while openset:
-            current = min(openset, key=lambda x: f[x])
+        while open_set:
+            current = min(open_set, key=lambda x: f[x])
             if current == goal:
                 return AStar.reconstruct_path(came_from, goal)
 
-            openset.remove(current)
-            closedset.add(current)
+            open_set.remove(current)
+            closed_set.add(current)
 
             for neighbor_edge in neighbor_edges(current):
-                if neighbor_edge.end in closedset:
+                if neighbor_edge.end in closed_set:
                     continue
                 tentative_g = g[current] + neighbor_edge.weight()
 
                 neighbor = neighbor_edge.end
-                if not neighbor in openset or tentative_g < g[neighbor_edge.end]:
+                if not neighbor in open_set or tentative_g < g[neighbor_edge.end]:
                     came_from[neighbor] = neighbor_edge
                     g[neighbor] = tentative_g
                     f[neighbor] = g[neighbor] + h(neighbor, goal)
-                    if not neighbor in openset:
-                        openset.add(neighbor)
+                    if not neighbor in open_set:
+                        open_set.add(neighbor)
 
         raise ValueError("no path possible")
 
@@ -322,3 +319,4 @@ class AlphaBatTest(TestCase):
                "-WWW-B",
                "B-BWB-"]), places=2
         )
+        
