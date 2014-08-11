@@ -173,7 +173,7 @@ def length(path):
     return sum(map(lambda edge: edge.weight(), path))
 
 def shortest_path(begin, end, edges):
-    return min(paths(begin, end, edges), key=length)
+    return AStar.shortest_path(begin, end, edges)
 
 
 
