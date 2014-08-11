@@ -203,8 +203,9 @@ class AStar:
     @staticmethod
     def reconstruct_path(came_from, current_node):
         if current_node in came_from:
-            p = AStar.reconstruct_path(came_from, came_from[current_node].begin)
-            return p + [came_from[current_node]]
+            edge_to_current = came_from[current_node]
+            p = AStar.reconstruct_path(came_from, edge_to_current.begin)
+            return p + [edge_to_current]
         else:
             return []
 
