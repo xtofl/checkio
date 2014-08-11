@@ -100,11 +100,61 @@ class Edge(namedtuple("Edge", ("begin", "end"))):
     def weight(self):
         return self.begin.distance_to(self.end)
 
+def between(lim1, lim2, i):
+    if lim1 < lim2:
+        return lim1 <= i and i <= lim2
+    else:
+        return lim2 <= i and i <= lim1
+
+def line_intersection(line1, line2):
+    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+    ydiff = (line1[0][1] - line2[1][1], line2[0][1] - line2[1][1])
+
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0:
+       return None
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+
+    def on(seg):
+        return between(seg[0][0], seg[1][0], x) and between(seg[0][1], seg[1][1], y)
+
+    if on(line1) and on(line2):
+        return x, y
+    else:
+        return None
+
 class Wall(namedtuple("Wall", ("center"))):
+
     def intersects(self, arc):
-        return False
+        def add(point, offset):
+            return (point[0] + offset[0], point[1] + offset[1])
+        top_left = add(self.center, (-0.5, -0.5))
+        top_right = add(self.center, (-0.5, 0.5))
+        bot_left = add(self.center, (0.5, -0.5))
+        bot_right = add(self.center, (0.5, 0.5))
 
+        arc_line = (arc.begin.where, arc.end.where)
+        wall_lines = [
+            (top_left, top_right),
+            (bot_left, bot_right),
+            (top_left, bot_left),
+            (top_right, bot_right)
+        ]
 
+        intersections = list(starmap(line_intersection, [(edge, arc_line) for edge in wall_lines]))
+        def on_center(point):
+            if not point: return False
+            return  not ((point[0] < top_left[0] or point[0] > bot_right[0])\
+                    or\
+                    (point[1] < top_left[1] or point[1] > bot_right[1]))
+        intersections_on_center = filter(on_center, intersections)
+        return any(intersections_on_center)
 
 
 def paths(begin, end, edges):
@@ -155,7 +205,8 @@ class AlphaBatTest(TestCase):
         alpha = Bat(3, 3)
         cave = Cave(bats=bats, alpha=alpha,
                     walls=[])
-        self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[0], alpha), (bats[1], alpha)]), bat_graph(cave).edges)
+        self.assertEqual(frozenset([(bats[0], bats[1]), (bats[1], bats[0]), (bats[0], alpha), (bats[1], alpha)]),
+                         bat_graph(cave).edges)
 
         cave = Cave(bats=bats, alpha=alpha,
                     walls=[Wall((1, 1))])
@@ -180,6 +231,13 @@ class AlphaBatTest(TestCase):
         a, b, c, d = map(DistanceOne, "abcd")
         self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
         self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
+
+    def testIntersection(self):
+        self.assertEqual((0, 0), line_intersection(((-1, 0), (1, 0)), ((0, -1), (0, 1))))
+        self.assertEqual((0, 0), line_intersection(((0, 0), (1, 0)), ((0, 0), (0, 1))))
+        self.assertEqual(None, line_intersection(((.5, 0), (1, 0)), ((0, 0), (0, 1))))
+        self.assertEqual(None, line_intersection(((0, 0), (1, 0)), ((.5, 0), (0, 1))))
+        self.assertEqual((0, 0), line_intersection(((-1, -1), (1, 1)), ((-1, 1), (1, -1))))
 
     def testWall(self):
         def edge(a, b):
