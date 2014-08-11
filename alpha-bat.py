@@ -183,12 +183,12 @@ class AStar:
     def make_neighbor_function(edges):
         def f(node):
             for e in ifilter(lambda edge: edge.begin == node, edges):
-                yield e.end
+                yield e
         return f
 
     @staticmethod
     def shortest_path(start, goal, edges, h=lambda edges, goal: 0):
-        neighbor_nodes = AStar.make_neighbor_function(edges)
+        neighbor_edges = AStar.make_neighbor_function(edges)
         closedset = set()
         openset = set([start])
         came_from = dict()
@@ -206,13 +206,14 @@ class AStar:
             openset.remove(current)
             closedset.add(current)
 
-            for neighbor in neighbor_nodes(current):
-                if neighbor in closedset:
+            for neighbor_edge in neighbor_edges(current):
+                if neighbor_edge.end in closedset:
                     continue
-                tentative_g = g[current] + current.distance_to(neighbor)
+                tentative_g = g[current] + neighbor_edge.weight()
 
-                if not neighbor in openset or tentative_g < g[neighbor]:
-                    came_from[neighbor] = current
+                if not neighbor_edge in openset or tentative_g < g[neighbor_edge.end]:
+                    neighbor = neighbor_edge.end
+                    came_from[neighbor] = neighbor_edge
                     g[neighbor] = tentative_g
                     f[neighbor] = g[neighbor] + h(neighbor, goal)
                     if not neighbor in openset:
@@ -224,9 +225,9 @@ class AStar:
     def reconstruct_path(came_from, current_node):
         if current_node in came_from:
             p = AStar.reconstruct_path(came_from, came_from[current_node])
-            return p + [current_node]
+            return p + [came_from[current_node]]
         else:
-            return [current_node]
+            return []
 
 
 def make_edges(*args):
