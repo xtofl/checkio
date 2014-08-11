@@ -211,8 +211,8 @@ class AStar:
                     continue
                 tentative_g = g[current] + neighbor_edge.weight()
 
-                if not neighbor_edge in openset or tentative_g < g[neighbor_edge.end]:
-                    neighbor = neighbor_edge.end
+                neighbor = neighbor_edge.end
+                if not neighbor in openset or tentative_g < g[neighbor_edge.end]:
                     came_from[neighbor] = neighbor_edge
                     g[neighbor] = tentative_g
                     f[neighbor] = g[neighbor] + h(neighbor, goal)
@@ -224,7 +224,7 @@ class AStar:
     @staticmethod
     def reconstruct_path(came_from, current_node):
         if current_node in came_from:
-            p = AStar.reconstruct_path(came_from, came_from[current_node])
+            p = AStar.reconstruct_path(came_from, came_from[current_node].begin)
             return p + [came_from[current_node]]
         else:
             return []
@@ -274,17 +274,20 @@ class AlphaBatTest(TestCase):
         self.assertAlmostEqual(1.41, distance((0, 0), (1, 1)), places=2)
 
     def testShortestPath(self):
-        class DistanceOne:
-            def __init__(self, name):
-                self.name = name
-            def distance_to(self, other):
-                return 1
-            def __repr__(self):
-                return self.name
+        a, b, c, d = Bat(0, 0), Bat(10, 0), Bat(10, 10), Bat(100, 100)
+        self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
+        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (c, d))))
 
-        a, b, c, d = map(DistanceOne, "abcd")
-        self.assertEqual([Edge(a, b)], AStar.shortest_path(a, b, make_edges((a, b))))
-        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
+        # prefer shorter of two
+        class Weighted(namedtuple("Weighted", ["begin", "end", "w"])):
+            def weight(self):
+                return self.w
+
+        self.assertEqual([Weighted(a, b, 1)], shortest_path(a, b, [Weighted(a, b, 1), Weighted(a, b, 2)]))
+        # prefer hypothenuse
+        self.assertEqual([Edge(a, c)], shortest_path(a, c, make_edges((a, b), (b, c), (a, c))))
+        self.assertEqual([Edge(a, c), Edge(c, d)], shortest_path(a, d, make_edges((a, b), (b, c), (a, c), (c, d))))
+
 
     def testIntersection(self):
         self.assertEqual((0, 0), line_intersection(((-1, 0), (1, 0)), ((0, -1), (0, 1))))
