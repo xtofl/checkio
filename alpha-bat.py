@@ -213,7 +213,8 @@ def length(path):
 def checkio(cave_lines):
     cave = parse_cave(cave_lines)
     graph = bat_graph(cave)
-    return length(AStar.shortest_path(cave.bats[0], cave.alpha, graph.edges))
+    entry_bat = filter(lambda bat: bat.where == (0, 0), cave.bats + [cave.alpha])[0]
+    return length(AStar.shortest_path(entry_bat, cave.alpha, graph.edges))
 
 
 from unittest import TestCase
@@ -319,4 +320,4 @@ class AlphaBatTest(TestCase):
                "-WWW-B",
                "B-BWB-"]), places=2
         )
-        
+        self.assertEqual(0, checkio(["A"]))
