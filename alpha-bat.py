@@ -187,7 +187,7 @@ class AStar:
         return f
 
     @staticmethod
-    def shortest_path(start, goal, edges, h=lambda edges, goal: 0):
+    def shortest_path(start, goal, edges, h=lambda vertex, goal: 0):
         neighbor_edges = AStar.make_neighbor_function(edges)
         closedset = set()
         openset = set([start])
