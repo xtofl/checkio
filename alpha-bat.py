@@ -102,9 +102,9 @@ class Edge(namedtuple("Edge", ("begin", "end"))):
 
 def between(lim1, lim2, i):
     if lim1 < lim2:
-        return lim1 <= i and i <= lim2
+        return not (i < lim1 or i > lim2)
     else:
-        return lim2 <= i and i <= lim1
+        return not (i < lim2 or i > lim1)
 
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
@@ -148,13 +148,7 @@ class Wall(namedtuple("Wall", ("center"))):
         ]
 
         intersections = list(starmap(line_intersection, [(edge, arc_line) for edge in wall_lines]))
-        def on_center(point):
-            if not point: return False
-            return  not ((point[0] < top_left[0] or point[0] > bot_right[0])\
-                    or\
-                    (point[1] < top_left[1] or point[1] > bot_right[1]))
-        intersections_on_center = filter(on_center, intersections)
-        return any(intersections_on_center)
+        return any(intersections)
 
 
 def paths(begin, end, edges):
@@ -238,6 +232,7 @@ class AlphaBatTest(TestCase):
         self.assertEqual(None, line_intersection(((.5, 0), (1, 0)), ((0, 0), (0, 1))))
         self.assertEqual(None, line_intersection(((0, 0), (1, 0)), ((.5, 0), (0, 1))))
         self.assertEqual((0, 0), line_intersection(((-1, -1), (1, 1)), ((-1, 1), (1, -1))))
+        self.assertEqual((1, 0.5), line_intersection(((0.5, 0.5), (1.5, 0.5)), ((1, 0), (1, 2))))
 
     def testWall(self):
         def edge(a, b):
