@@ -310,42 +310,34 @@ class AlphaBatTest(TestCase):
         self.assertFalse(Wall((1, 1)).intersects(edge((2, 0), (2, 2))))
 
     def testGiven(self):
-        self.assertAlmostEqual(2.83,
+        self.assertAlmostEqual(
+            2.83,
             checkio([
                 "B--",
                 "---",
                 "--A"]), places=2
         )
-        self.assertAlmostEqual(4,
+        self.assertAlmostEqual(
+            4,
             checkio([
                 "B-B",
                 "BW-",
                 "-BA"]), places=2
         )
-        self.assertAlmostEqual(12,
+        self.assertAlmostEqual(
+            12,
             checkio([
                 "BWB--B",
                 "-W-WW-",
                 "B-BWAB"]), places=2
         )
-        #TODO: get this test under 1 seconds
-        self.assertAlmostEqual(9.24,
+        self.assertAlmostEqual(
+            9.24,
             checkio([
-                "B---B-",
-                "-WWW-B",
-                "-WA--B",
-                "-W-B--",
-                "-WWW--",
-                "---WB-"]), places=2
-        )
-        return
-        #TODO: performance!
-        self.assertAlmostEqual(9.24,
-            checkio([
-                "B---B-",
-                "-WWW-B",
-                "-WA--B",
-                "-W-B--",
-                "-WWW-B",
-                "B-BWB-"]), places=2
+               "B---B-",
+               "-WWW-B",
+               "-WA--B",
+               "-W-B--",
+               "-WWW-B",
+               "B-BWB-"]), places=2
         )
