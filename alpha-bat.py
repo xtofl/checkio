@@ -201,7 +201,7 @@ class AlphaBatTest(TestCase):
         self.assertRaises(ValueError, parse_cave, ["B-", "--"])
 
     def testArcsFromBats(self):
-        bats = [Bat(0, 0), Bat(2, 3)]
+        bats = [Bat(0, 0), Bat(0, 3)]
         alpha = Bat(3, 3)
         cave = Cave(bats=bats, alpha=alpha,
                     walls=[])
