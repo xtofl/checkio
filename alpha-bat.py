@@ -1,11 +1,9 @@
-from collections import namedtuple
-from itertools import imap, ifilter, starmap, ifilterfalse, chain, islice
-from math import sqrt
-
 __author__ = 'xtofl'
 
+from collections import namedtuple
+from itertools import ifilter, imap, starmap, ifilterfalse
+from math import sqrt
 
-from unittest import TestCase
 
 def parse_cave(lines):
     bats = []
@@ -28,7 +26,7 @@ def parse_cave(lines):
     for r, line in enumerate(lines):
         for c, cell in enumerate(line):
             actions[cell](r, c)
-    if not alpha: raise ValueError("No Alpha Bat in cave")
+    if len(alpha) != 1: raise ValueError("No unique Alpha Bat in cave")
     return Cave(bats=bats, alpha=alpha[0], walls=walls)
 
 
@@ -79,14 +77,11 @@ class Graph:
 
 def bat_graph(cave):
     nodes = cave.bats
-    arcs = [Edge(x, y) for x in nodes for y in nodes if not x is y] + [Edge(x, cave.alpha) for x in nodes]
-    arcs_no_walls = ifilterfalse(lambda arc: any(map(lambda wall: wall.intersects(arc), cave.walls)), arcs)
+    inter_bat_edges = [Edge(x, y) for x in nodes for y in nodes if not x is y]
+    bat_alpha_edges = [Edge(x, cave.alpha) for x in nodes]
+    edges = inter_bat_edges + bat_alpha_edges
+    arcs_no_walls = ifilterfalse(lambda edge: any(map(lambda wall: wall.intersects(edge), cave.walls)), edges)
     return Graph(nodes, frozenset(arcs_no_walls))
-
-def checkio(cave_lines):
-    cave = parse_cave(cave_lines)
-    graph = bat_graph(cave)
-    return length(shortest_path(cave.bats[0], cave.alpha, graph.edges))
 
 
 def distance(p0, p1):
@@ -100,50 +95,55 @@ class Edge(namedtuple("Edge", ("begin", "end"))):
     def weight(self):
         return self.begin.distance_to(self.end)
 
-def between(lim1, lim2, i):
+def between(lim1, i, lim2):
     if lim1 < lim2:
         return not (i < lim1 or i > lim2)
     else:
         return not (i < lim2 or i > lim1)
 
-def line_intersection(line1, line2):
-    def line(p1, p2):
-        A = (p1[1] - p2[1])
-        B = (p2[0] - p1[0])
-        C = (p1[0]*p2[1] - p2[0]*p1[1])
-        return A, B, -C
+"""thanks - http://stackoverflow.com/a/20679579/6610"""
+def line_coefficients(p1, p2):
+    A = (p1[1] - p2[1])
+    B = (p2[0] - p1[0])
+    C = (p1[0]*p2[1] - p2[0]*p1[1])
+    return A, B, -C
 
-    def intersection(line1, line2):
-        L1, L2 = line(*line1), line(*line2)
-        D  = L1[0] * L2[1] - L1[1] * L2[0]
-        Dx = L1[2] * L2[1] - L1[1] * L2[2]
-        Dy = L1[0] * L2[2] - L1[2] * L2[0]
-        if D != 0:
-            x = Dx / D
-            y = Dy / D
-            return x,y
+def intersection(segment1, segment2):
+    L1, L2 = line_coefficients(*segment1), line_coefficients(*segment2)
+    D  = L1[0] * L2[1] - L1[1] * L2[0]
+    Dx = L1[2] * L2[1] - L1[1] * L2[2]
+    Dy = L1[0] * L2[2] - L1[2] * L2[0]
+    if D != 0:
+        x = Dx / D
+        y = Dy / D
+        return x, y
 
-    i = intersection(line1, line2)
+def line_intersection(segment1, segment2):
+
+    i = intersection(segment1, segment2)
 
     if i:
         x, y = i
-        def on(seg):
-            return between(seg[0][0], seg[1][0], x) and between(seg[0][1], seg[1][1], y)
+        def on(segment):
+            # since we know i is on the line defined by segment,
+            # we can fallback to limit-testing only
+            return between(segment[0][0], x, segment[1][0]) and between(segment[0][1], y, segment[1][1])
 
-        if on(line1) and on(line2):
+        if on(segment1) and on(segment2):
             return x, y
         else:
             return None
 
+def add_to_point(point, offset):
+    return (point[0] + offset[0], point[1] + offset[1])
+
 class Wall(namedtuple("Wall", ("center"))):
 
     def intersects(self, arc):
-        def add(point, offset):
-            return (point[0] + offset[0], point[1] + offset[1])
-        top_left = add(self.center, (-0.5, -0.5))
-        top_right = add(self.center, (-0.5, 0.5))
-        bot_left = add(self.center, (0.5, -0.5))
-        bot_right = add(self.center, (0.5, 0.5))
+        top_left = add_to_point(self.center, (-0.5, -0.5))
+        top_right = add_to_point(self.center, (-0.5, 0.5))
+        bot_left = add_to_point(self.center, (0.5, -0.5))
+        bot_right = add_to_point(self.center, (0.5, 0.5))
 
         arc_line = (arc.begin.where, arc.end.where)
         wall_lines = [
@@ -156,41 +156,17 @@ class Wall(namedtuple("Wall", ("center"))):
         intersections = list(starmap(line_intersection, [(edge, arc_line) for edge in wall_lines]))
         return any(intersections)
 
-
-def paths(begin, end, edges):
-    direct_edges = ifilter(lambda e: e.connects(begin, end), edges)
-    for e in direct_edges:
-        yield [e]
-
-    indirect_edges = ifilter(lambda e: e.begin == begin, edges)
-    for e in indirect_edges:
-        rest_edges = filter(lambda edge: edge != e, edges)
-        for p in paths(e.end, end, rest_edges):
-            yield [e] + p
-
-
-def length(path):
-    return sum(map(lambda edge: edge.weight(), path))
-
-def shortest_path(begin, end, edges):
-    return AStar.shortest_path(begin, end, edges)
-
-
-
 class AStar:
-
-    @staticmethod
-    def make_neighbor_function(edges):
-        def f(node):
-            for e in ifilter(lambda edge: edge.begin == node, edges):
-                yield e
-        return f
+    """adapted from wikipedia http://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode"""
 
     @staticmethod
     def shortest_path(start, goal, edges, h=lambda vertex, goal: 0):
-        neighbor_edges = AStar.make_neighbor_function(edges)
-        closedset = set()
-        openset = set([start])
+        def neighbor_edges(node):
+            for e in ifilter(lambda edge: edge.begin == node, edges):
+                yield e
+
+        closed_set = set()
+        open_set = set([start])
         came_from = dict()
 
         g = dict()
@@ -198,52 +174,54 @@ class AStar:
         f = dict()
         f[start] = g[start] + h(start, goal)
 
-        while openset:
-            current = min(openset, key=lambda x: f[x])
+        while open_set:
+            current = min(open_set, key=lambda x: f[x])
             if current == goal:
                 return AStar.reconstruct_path(came_from, goal)
 
-            openset.remove(current)
-            closedset.add(current)
+            open_set.remove(current)
+            closed_set.add(current)
 
             for neighbor_edge in neighbor_edges(current):
-                if neighbor_edge.end in closedset:
+                if neighbor_edge.end in closed_set:
                     continue
                 tentative_g = g[current] + neighbor_edge.weight()
 
                 neighbor = neighbor_edge.end
-                if not neighbor in openset or tentative_g < g[neighbor_edge.end]:
+                if not neighbor in open_set or tentative_g < g[neighbor_edge.end]:
                     came_from[neighbor] = neighbor_edge
                     g[neighbor] = tentative_g
                     f[neighbor] = g[neighbor] + h(neighbor, goal)
-                    if not neighbor in openset:
-                        openset.add(neighbor)
+                    if not neighbor in open_set:
+                        open_set.add(neighbor)
 
         raise ValueError("no path possible")
 
     @staticmethod
     def reconstruct_path(came_from, current_node):
         if current_node in came_from:
-            p = AStar.reconstruct_path(came_from, came_from[current_node].begin)
-            return p + [came_from[current_node]]
+            edge_to_current = came_from[current_node]
+            p = AStar.reconstruct_path(came_from, edge_to_current.begin)
+            return p + [edge_to_current]
         else:
             return []
 
+
+def length(path):
+    return sum(imap(lambda edge: edge.weight(), path))
+
+def checkio(cave_lines):
+    cave = parse_cave(cave_lines)
+    graph = bat_graph(cave)
+    return length(AStar.shortest_path(cave.bats[0], cave.alpha, graph.edges))
+
+
+from unittest import TestCase
 
 def make_edges(*args):
     return [Edge(*(arg)) for arg in args]
 
 class AlphaBatTest(TestCase):
-
-    def testPaths(self):
-
-        self.assertTrue([Edge(1, 2)] in paths(1, 2, make_edges((1, 2))))
-        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((1, 2), (2, 3))))
-        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3))))
-        self.assertTrue([Edge(1, 2), Edge(2, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
-        self.assertTrue([Edge(1, 3)] in paths(1, 3, make_edges((8, 10), (1, 2), (2, 3), (1, 3))))
-        self.assertTrue(make_edges((1, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
-        self.assertTrue(make_edges((1, 2), (2, 3), (3, 4)) in paths(1, 4, make_edges((1, 2), (2, 3), (3, 4), (1, 3), (3, 4))))
 
     def testParsingCave(self):
         small = ["B-", "-A"]
@@ -275,18 +253,18 @@ class AlphaBatTest(TestCase):
 
     def testShortestPath(self):
         a, b, c, d = Bat(0, 0), Bat(10, 0), Bat(10, 10), Bat(100, 100)
-        self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
-        self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (c, d))))
+        self.assertEqual([Edge(a, b)], AStar.shortest_path(a, b, make_edges((a, b))))
+        self.assertEqual([Edge(a, b), Edge(b, d)], AStar.shortest_path(a, d, make_edges((a, b), (b, d), (c, d))))
 
         # prefer shorter of two
         class Weighted(namedtuple("Weighted", ["begin", "end", "w"])):
             def weight(self):
                 return self.w
 
-        self.assertEqual([Weighted(a, b, 1)], shortest_path(a, b, [Weighted(a, b, 1), Weighted(a, b, 2)]))
+        self.assertEqual([Weighted(a, b, 1)], AStar.shortest_path(a, b, [Weighted(a, b, 1), Weighted(a, b, 2)]))
         # prefer hypothenuse
-        self.assertEqual([Edge(a, c)], shortest_path(a, c, make_edges((a, b), (b, c), (a, c))))
-        self.assertEqual([Edge(a, c), Edge(c, d)], shortest_path(a, d, make_edges((a, b), (b, c), (a, c), (c, d))))
+        self.assertEqual([Edge(a, c)], AStar.shortest_path(a, c, make_edges((a, b), (b, c), (a, c))))
+        self.assertEqual([Edge(a, c), Edge(c, d)], AStar.shortest_path(a, d, make_edges((a, b), (b, c), (a, c), (c, d))))
 
 
     def testIntersection(self):
@@ -341,3 +319,4 @@ class AlphaBatTest(TestCase):
                "-WWW-B",
                "B-BWB-"]), places=2
         )
+        
