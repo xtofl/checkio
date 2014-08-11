@@ -176,6 +176,59 @@ def shortest_path(begin, end, edges):
     return min(paths(begin, end, edges), key=length)
 
 
+
+class AStar:
+
+    @staticmethod
+    def make_neighbor_function(edges):
+        def f(node):
+            for e in ifilter(lambda edge: edge.begin == node, edges):
+                yield e.end
+        return f
+
+    @staticmethod
+    def shortest_path(start, goal, edges, h=lambda edges, goal: 0):
+        neighbor_nodes = AStar.make_neighbor_function(edges)
+        closedset = set()
+        openset = set([start])
+        came_from = dict()
+
+        g = dict()
+        g[start] = 0
+        f = dict()
+        f[start] = g[start] + h(start, goal)
+
+        while openset:
+            current = min(openset, key=lambda x: f[x])
+            if current == goal:
+                return AStar.reconstruct_path(came_from, goal)
+
+            openset.remove(current)
+            closedset.add(current)
+
+            for neighbor in neighbor_nodes(current):
+                if neighbor in closedset:
+                    continue
+                tentative_g = g[current] + current.distance_to(neighbor)
+
+                if not neighbor in openset or tentative_g < g[neighbor]:
+                    came_from[neighbor] = current
+                    g[neighbor] = tentative_g
+                    f[neighbor] = g[neighbor] + h(neighbor, goal)
+                    if not neighbor in openset:
+                        openset.add(neighbor)
+
+        raise ValueError("no path possible")
+
+    @staticmethod
+    def reconstruct_path(came_from, current_node):
+        if current_node in came_from:
+            p = AStar.reconstruct_path(came_from, came_from[current_node])
+            return p + [current_node]
+        else:
+            return [current_node]
+
+
 def make_edges(*args):
     return [Edge(*(arg)) for arg in args]
 
@@ -229,7 +282,7 @@ class AlphaBatTest(TestCase):
                 return self.name
 
         a, b, c, d = map(DistanceOne, "abcd")
-        self.assertEqual([Edge(a, b)], shortest_path(a, b, make_edges((a, b))))
+        self.assertEqual([Edge(a, b)], AStar.shortest_path(a, b, make_edges((a, b))))
         self.assertEqual([Edge(a, b), Edge(b, d)], shortest_path(a, d, make_edges((a, b), (b, d), (b, c), (c, d))))
 
     def testIntersection(self):
@@ -252,7 +305,7 @@ class AlphaBatTest(TestCase):
         self.assertFalse(Wall((1, 1)).intersects(edge((0, 0), (2, 0))))
         self.assertFalse(Wall((1, 1)).intersects(edge((2, 0), (2, 2))))
 
-    def _testGiven(self):
+    def testGiven(self):
         self.assertAlmostEqual(2.83,
             checkio([
                 "B--",
@@ -271,6 +324,18 @@ class AlphaBatTest(TestCase):
                 "-W-WW-",
                 "B-BWAB"]), places=2
         )
+        #TODO: get this test under 1 seconds
+        self.assertAlmostEqual(9.24,
+            checkio([
+                "B---B-",
+                "-WWW-B",
+                "-WA--B",
+                "-W-B--",
+                "-WWW--",
+                "---WB-"]), places=2
+        )
+        return
+        #TODO: performance!
         self.assertAlmostEqual(9.24,
             checkio([
                 "B---B-",
