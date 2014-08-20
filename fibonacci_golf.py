@@ -24,14 +24,15 @@ def construct(args):
         return cache[n]
     return name, f
 
+
 functions = dict(map(construct, [
     ("fibonacci", [0, 1], lambda f, n: f(n-1)+f(n-2)),
     ("tribonacci", [0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3)),
     ("lucas", [2, 1], lambda f, n: f(n-1)+f(n-2)),
     ("jacobsthal", [0, 1], lambda f, n: f(n-1) + 2 * f(n-2)),
     ("pell", [0, 1], lambda f, n: 2 * f(n-1) + f(n-2)),
-    ("padovan", [0, 1, 1], lambda f, n: f(n-2) + f(n-3)),
-    ("perrin", [0, 1, 2], lambda f, n: f(n-2) + f(n-3))
+    ("perrin", [3, 0, 2], lambda f, n: f(n-2) + f(n-3)),
+    ("padovan", [0, 1, 1], lambda f, n: f(n-2) + f(n-3))
     ]))
 
 
