@@ -15,18 +15,25 @@ padovan:
 f(0)=0, f(1)=1, f(2)=1, f(n)=f(n-2)+f(n-3)
 """
 
-def construct(initial, recursive):
+def construct(args):
+    name, initial, recursive = args
+    cache = dict(enumerate(initial))
     def f(n):
-        if n < len(initial): return initial[n]
-        return recursive(f, n)
-    return f
+        if n in cache: return cache[n]
+        cache[n] = recursive(f, n)
+        return cache[n]
+    return name, f
 
-functions = {
-    "fibonacci": construct([0, 1], lambda f, n: f(n-1)+f(n-2)),
-    "tribonacci": construct([0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3)),
-    "lucas": construct([2, 1], lambda f, n: f(n-1)+f(n-2)),
-    "jacobsthal": construct([0, 1], lambda f, n: f(n-1) + 2 * f(n-2)),
-    "pell": construct([0, 1], lambda f, n: 2 * f(n-1) + f(n-2)),
-    "padovan": construct([0, 1, 1], (lambda f, n: f(n-2) + f(n-3))),
-    "perrin": construct([0, 1, 2], lambda f, n: f(n-2) + f(n-3))
-}
+functions = dict(map(construct, [
+    ("fibonacci", [0, 1], lambda f, n: f(n-1)+f(n-2)),
+    ("tribonacci", [0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3)),
+    ("lucas", [2, 1], lambda f, n: f(n-1)+f(n-2)),
+    ("jacobsthal", [0, 1], lambda f, n: f(n-1) + 2 * f(n-2)),
+    ("pell", [0, 1], lambda f, n: 2 * f(n-1) + f(n-2)),
+    ("padovan", [0, 1, 1], lambda f, n: f(n-2) + f(n-3)),
+    ("perrin", [0, 1, 2], lambda f, n: f(n-2) + f(n-3))
+    ]))
+
+
+def fibgolf(type,num):
+    return functions[type](num)

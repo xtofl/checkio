@@ -14,7 +14,7 @@ def check_code(codestring):
     codestring = codestring.replace("\r", "\n")
     codestring = codestring.rstrip()
     try:
-        return len(marshal.dumps(__builtins__.compile(codestring, '', 'exec', optimize=1)))
+        return len(marshal.dumps(__builtins__.compile(codestring, '', 'exec')))
     except SyntaxError as detail:
         import traceback
 
