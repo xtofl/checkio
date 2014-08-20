@@ -11,33 +11,33 @@ def takef(n, f):
 class TestFib(TestCase):
 
     def testFibonacci(self):
-        f = takef(20, fibonacci)
+        f = functions["fibonacci"]
         for n in xrange(2, 10):
             self.assertEqual(f(n), f(n-1)+f(n-2), "for n == "+str(n))
 
     def testTribonacci(self):
-        f = tribonacci
+        f = functions["tribonacci"]
         for n in xrange(3, 10):
             self.assertEqual(f(n), f(n-1)+f(n-2)+f(n-3), "for n == "+str(n))
 
     def testLucas(self):
-        f = lucas
+        f = functions["lucas"]
         f(0)==2, f(1)==1
         for n in xrange(2, 10):
             self.assertEqual(f(n), f(n-1)+f(n-2), "for n == "+str(n))
 
     def testJacobsthal(self):
-        f = jacobsthal
+        f = functions["jacobsthal"]
         for n in xrange(2, 10):
             self.assertEqual(f(n), f(n-1)+2*f(n-2), "for n == "+str(n))
 
     def testPerrin(self):
-        f = perrin
+        f = functions["perrin"]
         for n in xrange(3, 10):
             self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
 
     def testPadovan(self):
-        f = padovan
+        f = functions["padovan"]
         for n in xrange(3, 10):
             self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
 

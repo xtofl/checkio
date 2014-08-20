@@ -21,11 +21,12 @@ def construct(initial, recursive):
         return recursive(f, n)
     return f
 
-
-fibonacci = construct([0, 1], lambda f, n: f(n-1)+f(n-2))
-tribonacci = construct([0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3))
-lucas = construct([2, 1], lambda f, n: f(n-1)+f(n-2))
-jacobsthal = construct([0, 1], lambda f, n: f(n-1) + 2 * f(n-2))
-pell = construct([0, 1], lambda f, n: 2 * f(n-1) + f(n-2))
-padovan = construct([0, 1, 1], (lambda f, n: f(n-2) + f(n-3)))
-perrin = construct([0, 1, 2], lambda f, n: f(n-2) + f(n-3))
+functions = {
+    "fibonacci": construct([0, 1], lambda f, n: f(n-1)+f(n-2)),
+    "tribonacci": construct([0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3)),
+    "lucas": construct([2, 1], lambda f, n: f(n-1)+f(n-2)),
+    "jacobsthal": construct([0, 1], lambda f, n: f(n-1) + 2 * f(n-2)),
+    "pell": construct([0, 1], lambda f, n: 2 * f(n-1) + f(n-2)),
+    "padovan": construct([0, 1, 1], (lambda f, n: f(n-2) + f(n-3))),
+    "perrin": construct([0, 1, 2], lambda f, n: f(n-2) + f(n-3))
+}
