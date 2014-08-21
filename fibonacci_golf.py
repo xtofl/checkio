@@ -27,8 +27,6 @@ def fibgolf(type,num):
         "padovan": ([0, 1, 1], [0, 1, 1])
     }[type]
     while len(values) <= num:
-        product = [a*b for a, b in zip(coefficients, values[::-1])]
-        newvalue = sum(product)
-        values.append(newvalue)
+        values.append(sum([a*b for a, b in zip(coefficients, values[::-1])]))
 
     return values[num]
