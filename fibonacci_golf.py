@@ -17,19 +17,13 @@ f(0)=0, f(1)=1, f(2)=1, f(n)=f(n-2)+f(n-3)
 
 def construct(args):
     name, initial, recursive = args
-    return name, generatef(initial, recursive, 400)
-
-def generate(initial, recursive, maxn):
     values = list(initial)
-    while len(values) < maxn:
+    while len(values) < 400:
         product = [a*b for a, b in zip(recursive[::-1],values[::-1])]
         newvalue = sum(product)
         values.append(newvalue)
-    return values
 
-def generatef(*args):
-    values = generate(*args)
-    return lambda n: values[n]
+    return name, lambda n: values[n]
 
 functions = dict(map(construct, [
     ("fibonacci", [0, 1], [1, 1]),
