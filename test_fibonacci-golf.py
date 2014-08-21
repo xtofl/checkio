@@ -2,37 +2,36 @@ from unittest import TestCase
 import itertools
 from fibonacci_golf import *
 
-def takef(n, f):
-    sequence = map(f, xrange(n))
-    def f(n):
-        return sequence[n]
-    return f
+
+functions = {k: lambda n: fibgolf(k, n) for k in definitions}
 
 class TestFib(TestCase):
 
     def testFibonacci(self):
-        f = functions["fibonacci"]
+        f = lambda n: fibgolf("fibonacci", n)
         for n in xrange(2, 400):
             self.assertEqual(f(n), f(n-1)+f(n-2), "for n == "+str(n))
 
     def testTribonacci(self):
-        f = functions["tribonacci"]
+        f = lambda n: fibgolf("tribonacci", n)
         for n in xrange(3, 400):
             self.assertEqual(f(n), f(n-1)+f(n-2)+f(n-3), "for n == "+str(n))
 
     def testLucas(self):
-        f = functions["lucas"]
+        f = lambda n: fibgolf("lucas", n)
         f(0)==2, f(1)==1
         for n in xrange(2, 400):
             self.assertEqual(f(n), f(n-1)+f(n-2), "for n == "+str(n))
 
     def testJacobsthal(self):
-        f = functions["jacobsthal"]
+        f = lambda n: fibgolf("jacobsthal", n)
+        self.assertEqual(0, f(0))
+        self.assertEqual(1, f(1))
         for n in xrange(2, 400):
             self.assertEqual(f(n), f(n-1)+2*f(n-2), "for n == "+str(n))
 
     def testPadovan(self):
-        f = functions["padovan"]
+        f = lambda n: fibgolf("padovan", n)
         self.assertEqual(0, f(0))
         self.assertEqual(1, f(1))
         self.assertEqual(1, f(2))
@@ -41,7 +40,7 @@ class TestFib(TestCase):
             self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
 
     def testPerrin(self):
-        f = functions["perrin"]
+        f = lambda n: fibgolf("perrin", n)
         self.assertEqual(3, f(0))
         self.assertEqual(0, f(1))
         self.assertEqual(2, f(2))
@@ -50,5 +49,5 @@ class TestFib(TestCase):
 
     def testLengthOfCode(self):
         import local_checker
-        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1709)
+        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1453)
 
