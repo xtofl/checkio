@@ -24,6 +24,16 @@ def construct(args):
         return cache[n]
     return name, f
 
+def generate(initial, recursive, maxn):
+    values = list(initial)
+    while len(values) < maxn:
+        newvalue = sum([a * b for a, b in zip(values[::-1], initial[::-1])])
+        values.append(newvalue)
+    return values
+
+def generatef(*args):
+    values = generate(*args)
+    return lambda n: values[n]
 
 functions = dict(map(construct, [
     ("fibonacci", [0, 1], lambda f, n: f(n-1)+f(n-2)),
@@ -34,7 +44,7 @@ functions = dict(map(construct, [
     ("perrin", [3, 0, 2], lambda f, n: f(n-2) + f(n-3)),
     ("padovan", [0, 1, 1], lambda f, n: f(n-2) + f(n-3))
     ]))
-
+functions["fibonacci"] = generatef([0, 1], [1, 1], 400)
 
 def fibgolf(type,num):
     return functions[type](num)

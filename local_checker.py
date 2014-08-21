@@ -14,7 +14,7 @@ def check_code(codestring):
     codestring = codestring.replace("\r", "\n")
     codestring = codestring.rstrip()
     try:
-        return len(marshal.dumps(__builtins__.compile(codestring, '', 'exec')))
+        return len(marshal.dumps(compile(codestring, '', 'exec')))
     except SyntaxError as detail:
         import traceback
 
@@ -23,6 +23,12 @@ def check_code(codestring):
             print(line.replace('File "<string>"', ''))
         return None
 
+def check_file(path):
+    codestring = ""
+    with open(path) as f:
+        codestring = f.read()
+    len = check_code(codestring)
+    print(len)
 
 if __name__ == '__main__':
     # cf: http://www.opensource.apple.com/source/python/python-3/python/Lib/py_compile.py
@@ -32,8 +38,5 @@ if __name__ == '__main__':
         print('local_checker py...')
         sys.exit(1)
     for i in range(1, len(sys.argv)):
-        f = open(sys.argv[i])
-        codestring = f.read()
-        f.close()
-        len = check_code(codestring)
+        len = check_file(sys.argv[i])
         print(len)

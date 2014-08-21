@@ -31,14 +31,6 @@ class TestFib(TestCase):
         for n in xrange(2, 400):
             self.assertEqual(f(n), f(n-1)+2*f(n-2), "for n == "+str(n))
 
-    def testPerrin(self):
-        f = functions["perrin"]
-        self.assertEqual(0, f(0))
-        self.assertEqual(1, f(1))
-        self.assertEqual(2, f(2))
-        for n in xrange(3, 400):
-            self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
-
     def testPadovan(self):
         f = functions["padovan"]
         self.assertEqual(0, f(0))
@@ -47,4 +39,16 @@ class TestFib(TestCase):
 
         for n in xrange(3, 400):
             self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
+
+    def testPerrin(self):
+        f = functions["perrin"]
+        self.assertEqual(3, f(0))
+        self.assertEqual(0, f(1))
+        self.assertEqual(2, f(2))
+        for n in xrange(3, 400):
+            self.assertEqual(f(n), f(n-2)+f(n-3), "for n == "+str(n))
+
+    def testLengthOfCode(self):
+        import local_checker
+        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 2133)
 
