@@ -3,8 +3,6 @@ import itertools
 from fibonacci_golf import *
 
 
-functions = {k: lambda n: fibgolf(k, n) for k in definitions}
-
 class TestFib(TestCase):
 
     def testFibonacci(self):
@@ -49,5 +47,5 @@ class TestFib(TestCase):
 
     def testLengthOfCode(self):
         import local_checker
-        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1430)
+        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1320)
 
