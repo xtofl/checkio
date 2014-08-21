@@ -26,7 +26,7 @@ def construct(initial, coefficients):
 
 
 def fibgolf(type,num):
-    definitions = {
+    function = construct(*({
         "fibonacci": ([0, 1], [1, 1]),
         "tribonacci": ([0, 1, 1], [1, 1, 1]),
         "lucas": ([2, 1], [1, 1]),
@@ -34,7 +34,5 @@ def fibgolf(type,num):
         "pell": ([0, 1], [1, 2]),
         "perrin": ([3, 0, 2], [0, 1, 1]),
         "padovan": ([0, 1, 1], [0, 1, 1])
-    }
-    definition = definitions[type]
-    function = construct(*definition)
+    }[type]))
     return function[num]
