@@ -15,8 +15,7 @@ padovan:
 f(0)=0, f(1)=1, f(2)=1, f(n)=f(n-2)+f(n-3)
 """
 
-def construct(args):
-    initial, coefficients = args
+def construct(initial, coefficients):
     values = list(initial)
     while len(values) < 400:
         product = [a*b for a, b in zip(coefficients, values[::-1])]
@@ -37,5 +36,5 @@ definitions = {
 
 def fibgolf(type,num):
     definition = definitions[type]
-    function = construct(definition)
+    function = construct(*definition)
     return function(num)

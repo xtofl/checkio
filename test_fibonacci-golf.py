@@ -49,5 +49,5 @@ class TestFib(TestCase):
 
     def testLengthOfCode(self):
         import local_checker
-        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1453)
+        self.assertLess(local_checker.check_file("fibonacci_golf.py"), 1430)
 
