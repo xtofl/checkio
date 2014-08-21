@@ -17,17 +17,13 @@ f(0)=0, f(1)=1, f(2)=1, f(n)=f(n-2)+f(n-3)
 
 def construct(args):
     name, initial, recursive = args
-    cache = dict(enumerate(initial))
-    def f(n):
-        if n in cache: return cache[n]
-        cache[n] = recursive(f, n)
-        return cache[n]
-    return name, f
+    return name, generatef(initial, recursive, 400)
 
 def generate(initial, recursive, maxn):
     values = list(initial)
     while len(values) < maxn:
-        newvalue = sum([a * b for a, b in zip(values[::-1], initial[::-1])])
+        product = [a*b for a, b in zip(recursive[::-1],values[::-1])]
+        newvalue = sum(product)
         values.append(newvalue)
     return values
 
@@ -36,15 +32,14 @@ def generatef(*args):
     return lambda n: values[n]
 
 functions = dict(map(construct, [
-    ("fibonacci", [0, 1], lambda f, n: f(n-1)+f(n-2)),
-    ("tribonacci", [0, 1, 1], lambda f, n: f(n-1)+f(n-2)+f(n-3)),
-    ("lucas", [2, 1], lambda f, n: f(n-1)+f(n-2)),
-    ("jacobsthal", [0, 1], lambda f, n: f(n-1) + 2 * f(n-2)),
-    ("pell", [0, 1], lambda f, n: 2 * f(n-1) + f(n-2)),
-    ("perrin", [3, 0, 2], lambda f, n: f(n-2) + f(n-3)),
-    ("padovan", [0, 1, 1], lambda f, n: f(n-2) + f(n-3))
+    ("fibonacci", [0, 1], [1, 1]),
+    ("tribonacci", [0, 1, 1], [1, 1, 1]),
+    ("lucas", [2, 1], [1, 1]),
+    ("jacobsthal", [0, 1], [2, 1]),
+    ("pell", [0, 1], [1, 2]),
+    ("perrin", [3, 0, 2], [1, 1, 0]),
+    ("padovan", [0, 1, 1], [1, 1, 0])
     ]))
-functions["fibonacci"] = generatef([0, 1], [1, 1], 400)
 
 def fibgolf(type,num):
     return functions[type](num)
