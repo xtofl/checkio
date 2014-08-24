@@ -21,7 +21,8 @@ def checkio(timestring):
     digits = "".join(parts)
     encoded_digits = map(lambda x: encode_digit(*x), zip(digits, [2, 4, 3, 4, 3, 4]))
     i = iter(encoded_digits)
-    return " : ".join(map(lambda part: "{} {}".format(*part), zip(i, iter(i))))
+    per_two = zip(i, iter(i))
+    return " : ".join(map(lambda part: "{} {}".format(*part), per_two))
 
 
 from unittest import TestCase
