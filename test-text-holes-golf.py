@@ -3,9 +3,8 @@ from unittest.case import TestCase
 
 class golfTest(TestCase):
 
-    def _testMatches(self):
-        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], row_matches("abc def")))
-        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], row_matches("a  bc def")))
+    def testMatches(self):
+        self.assertTrue(row_matches(["xxx","x x", "xxx"], 1))
 
     def testGiven(self):
         self.assertEqual(1, golf([
