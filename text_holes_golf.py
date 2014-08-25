@@ -7,10 +7,10 @@ def row_matches(lines, col):
     return all(spliced)
 
 def golf(text):
-    def iterate(text):
-        for row in xrange(1, len(text)-1):
-            lines = text[row-1:row+2]
-            for col in xrange(1, len(lines[row])):
-                if row_matches(lines, col):
-                    yield row, col
-    return len(list(iterate(text)))
+    n = 0
+    for row in xrange(1, len(text)-1):
+        lines = text[row-1:row+2]
+        for col in xrange(1, len(lines[row])):
+            if row_matches(lines, col):
+                n += 1
+    return n
