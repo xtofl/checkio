@@ -4,8 +4,8 @@ from unittest.case import TestCase
 class golfTest(TestCase):
 
     def _testMatches(self):
-        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], matches("abc def")))
-        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], matches("a  bc def")))
+        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], row_matches("abc def")))
+        self.assertEqual(["c d"], map(lambda m: m.string[m.start():m.end()], row_matches("a  bc def")))
 
     def testGiven(self):
         self.assertEqual(1, golf([
