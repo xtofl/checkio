@@ -13,6 +13,11 @@ class golfTest(TestCase):
             "Of course!!!",
             "Fine! good buy!"]))
 
+        self.assertEqual(2, golf([
+            "xxxxx",
+            "x x x",
+            "xxxxx"]))
+
         self.assertEqual(3, golf([
             "How are you doing?",
             "I'm fine. OK.",
