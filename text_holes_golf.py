@@ -10,7 +10,7 @@ def golf(text):
     n = 0
     for row in xrange(1, len(text)-1):
         lines = text[row-1:row+2]
-        for col in xrange(1, len(lines[row])):
+        for col in xrange(1, len(lines[1])):
             if row_matches(lines, col):
                 n += 1
     return n
