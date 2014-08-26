@@ -3,9 +3,6 @@ from unittest.case import TestCase
 
 class golfTest(TestCase):
 
-    def testEqualized(self):
-        self.assertEqual(["abc   ", "abcdef"], eq(["abc", "abcdef"]))
-
     def testGiven(self):
         self.assertEqual(1, golf(["xxx","x x", "xxx"]))
 
