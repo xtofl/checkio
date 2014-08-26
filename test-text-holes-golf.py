@@ -3,14 +3,17 @@ from unittest.case import TestCase
 
 class golfTest(TestCase):
 
-    def _testMatches(self):
-        self.assertTrue(row_matches(["xxx","x x", "xxx"], 1))
+    def testEqualized(self):
+        self.assertEqual(["abc   ", "abcdef"], eq(["abc", "abcdef"]))
 
     def testGiven(self):
+        self.assertEqual(1, golf(["xxx","x x", "xxx"]))
+
         self.assertEqual(1, golf([
             "Lorem Ipsum?",
             "Of course!!!",
             "Fine! good buy!"]))
+
 
         self.assertEqual(2, golf([
             "xxxxx",
