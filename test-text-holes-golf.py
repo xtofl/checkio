@@ -26,3 +26,24 @@ class golfTest(TestCase):
             "0        0",
             "1234567890",
             "Fine! good buy!"]))
+
+        self.assertEqual(5, golf([
+            "J  ck wU phP  UZfhHx",
+            "YNJ ugWNxKsPRasldco",
+            "hnIsUlWVO EhIyoNwLNZ",
+            "JEbloQ",
+            "XWrjMl B CAOR hZoJ",
+            "fMbJYeWgZHdbrgzcstd",
+            "ycY GyuS Sblj WB",
+            "fScUFqMKPOZ I",
+            "ioBkDQUL",
+            "QCV UweAY zm",
+            " QR QOe Ew lBGRvlnK",
+            "LeHduzsbakBufXD",
+            " AQGRp UtLGYS",
+            "nnDywuYwZTsHinW WJ",
+            "jLWKFjkUYfuZL okJz",
+            "HhdAZdhcKpiYkAWxg",
+            "zAVNZOzyE ",
+            "QRkRdf",
+            "hutrJFUvrFe"]))
