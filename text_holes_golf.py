@@ -1,4 +1,2 @@
 import re
-def golf(t):
-    m=max(map(len, t))
-    return len(re.findall(r"(?=({s}.{{{n}}}\S\s\S.{{{n}}}{s}))".format(n=m-3,s="\S\S\S"),"".join(map(lambda l:l+" "*(m-len(l)),t))))
+golf=lambda t:len(re.findall(r"(?=({s}.{{17}}\S\s\S.{{17}}{s}))".format(s="\S"*3),"".join(map(lambda l:l+" "*(20-len(l)),t))))
