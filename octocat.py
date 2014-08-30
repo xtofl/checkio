@@ -1,4 +1,7 @@
-from itertools import ifilter
+from math import sqrt
+from itertools import ifilter, starmap
+from operator import mul
+
 
 def freeze(x):
     if type(x) is list:
@@ -17,6 +20,7 @@ class AStar:
     def shortest_path(start, goal, edges, neighbors=None, weight=lambda x: x.weight, h=lambda vertex, goal: 0, begin=lambda x: x.begin, end=lambda x: x.end):
         start = freeze(start)
         def dump(x):
+            return None
             print x
         if neighbors:
             neighbor_edges = lambda x: dump(x) or freeze(neighbors(x))
@@ -102,11 +106,17 @@ def moves(puzzle):
 
 def checkio(puzzle):
     solved = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+    def lin(a):
+        return reduce(lambda x, y: x+y, freeze(a), ())
+    def distance(a, b):
+        a, b = lin(a), lin(b)
+        return sqrt(sum(starmap(mul, zip(a, b))))
+
     path = AStar.shortest_path(start=puzzle, goal=solved, edges=None, neighbors=moves,
                                begin=lambda x: freeze(x[1][0]),
                                end=lambda x: freeze(x[1][1]),
                                weight=lambda x: 1,
-                               h=dist)
+                               h=distance)
     return path
 
 from unittest import TestCase
