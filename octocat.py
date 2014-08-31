@@ -19,6 +19,7 @@ class AStar:
     @staticmethod
     def shortest_path(start, goal, edges, neighbors=None, weight=lambda x: x.weight, h=lambda vertex, goal: 0, begin=lambda x: x.begin, end=lambda x: x.end):
         start = freeze(start)
+        goal = freeze(goal)
         def dump(x):
             return None
             print x
@@ -41,7 +42,7 @@ class AStar:
         while open_set:
             next = min(open_set, key=lambda x: f[x])
             if next == goal:
-                return AStar.reconstruct_path(came_from, goal)
+                return AStar.reconstruct_path(came_from, goal, begin=begin)
 
             open_set.remove(next)
             closed_set.add(next)
@@ -62,10 +63,10 @@ class AStar:
         raise ValueError("no path possible")
 
     @staticmethod
-    def reconstruct_path(came_from, current_node):
+    def reconstruct_path(came_from, current_node, begin=lambda x: x.begin):
         if current_node in came_from:
             edge_to_current = came_from[current_node]
-            p = AStar.reconstruct_path(came_from, edge_to_current.begin)
+            p = AStar.reconstruct_path(came_from, begin(edge_to_current), begin=begin)
             return p + [edge_to_current]
         else:
             return []
@@ -110,14 +111,14 @@ def checkio(puzzle):
         return reduce(lambda x, y: x+y, freeze(a), ())
     def distance(a, b):
         a, b = lin(a), lin(b)
-        return sqrt(sum(starmap(mul, zip(a, b))))
+        return sqrt(sum(starmap(lambda a, b: (a-b)*(a-b), zip(a, b))))
 
     path = AStar.shortest_path(start=puzzle, goal=solved, edges=None, neighbors=moves,
                                begin=lambda x: freeze(x[1][0]),
                                end=lambda x: freeze(x[1][1]),
                                weight=lambda x: 1,
                                h=distance)
-    return path
+    return "".join(map(lambda x: x[0], path))
 
 from unittest import TestCase
 class TestOctoCat(TestCase):
@@ -156,6 +157,11 @@ class TestOctoCat(TestCase):
         self.assertEqual({('R', (1, 1)), ('U', (0, 0)), ('D', (2, 0))}, move_coords(puzzle))
 
     def testGiven(self):
+        self.assertEqual("", checkio(
+            [[1, 2, 3],
+             [4, 5, 6],
+             [7, 8, 0]]
+        ))
         self.assertEqual("ULDR", checkio(
             [[1, 2, 3],
              [4, 6, 8],
