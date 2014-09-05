@@ -1,10 +1,48 @@
+
+
+column = lambda grid, col: map(lambda row: row[col], grid)
+vertical = lambda grid, side, col: [side]*3 == list(column(grid, col))
+horizontal = lambda grid, side, row: side*3 == grid[row]
+diagonal1 = lambda grid, side: [side]*3 == [grid[i][i] for i in [0, 1, 2]]
+diagonal2 = lambda grid, side: [side]*3 == [grid[i][2-i] for i in [0, 1, 2]]
+diagonal = lambda grid, side: diagonal1(grid, side) or diagonal2(grid, side)
+
 def checkio(grid):
-    pass
+    x = any([vertical(grid, "X", i) for i in [0, 1, 2]] +
+            [horizontal(grid, "X", i) for i in [0, 1, 2]] +
+            [diagonal(grid, "X")])
+    o = any([vertical(grid, "O", i) for i in [0, 1, 2]])
+    if x:
+        return "X"
+    elif o:
+        return "O"
+    else:
+        return "D"
 
 from unittest import TestCase
 
 class Test(TestCase):
-    def test_One(self):
+
+    def assertSEqual(self, s1, s2):
+        return self.assertEqual(list(s1), list(s2))
+
+    def test_Column(self):
+        self.assertSEqual([1, 2, 3], column([
+            [1, 4, 4],
+            [2, 4, 4],
+            [3, 4, 4]], 0))
+        self.assertSEqual([4, 6, 8], column([
+            [1, 4, 4],
+            [2, 4, 6],
+            [3, 4, 8]], 2))
+
+    def test_Horizontal(self):
+        self.assertTrue(horizontal([
+            "XXX",
+            ".X.",
+            "XOO"], "X", 0))
+
+    def test_Given(self):
         self.assertEqual("X", checkio([
             "X.O",
             "XX.",
@@ -17,3 +55,13 @@ class Test(TestCase):
             "OOX",
             "XXO",
             "OXX"]))
+
+        self.assertEqual("X", checkio([
+            "XXX",
+            ".X.",
+            "XOO"]))
+
+        self.assertEqual("X", checkio([
+            "XX.",
+            ".X.",
+            "XOX"]))
