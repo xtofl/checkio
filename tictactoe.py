@@ -1,13 +1,14 @@
 
-def valid(grid, coord):
-    return (not coord) or \
-        ((len(grid) > coord[0]) and valid(grid[coord[0]], coord[1:]))
-
 def item(grid, coord):
     if len(coord) == 1:
         return grid[coord[0]]
     else:
         return item(grid[coord[0]], coord[1:])
+
+
+def valid(grid, coord):
+    return (not coord) or \
+        ((len(grid) > coord[0]) and valid(grid[coord[0]], coord[1:]))
 
 
 def sliced(grid, start, step):
@@ -16,30 +17,24 @@ def sliced(grid, start, step):
         yield item(grid, current)
         current = [a + b for a, b in zip(current, step)]
 
-
 down = (1, 0)
 right = (0, 1)
 down_right = (1, 1)
 down_left = (1, -1)
 
-vertical = lambda grid, col: list(sliced(grid, (0, col), down))
-horizontal = lambda grid, row: list(sliced(grid, (row, 0), right))
-diagonal1 = lambda grid: list(sliced(grid, (0, 0), down_right))
-diagonal2 = lambda grid: list(sliced(grid, (0, 2), down_left))
-
 def checkio(grid):
     wins = lambda side: \
         any([[side]*3 in
-             [vertical(grid, i) for i in [0, 1, 2]] +
-             [horizontal(grid, i) for i in [0, 1, 2]] +
-             [diagonal1(grid), diagonal2(grid)]])
+             [list(sliced(grid, (0, i), down)) for i in [0, 1, 2]] +
+             [list(sliced(grid, (i, 0), right)) for i in [0, 1, 2]] +
+             [list(sliced(grid, (0, 0), down_right))] +
+             [list(sliced(grid, (0, 2), down_left))]])
 
-    if wins("X"):
-        return "X"
-    elif wins("O"):
-        return "O"
-    else:
-        return "D"
+    for side in ["X", "O"]:
+        if wins(side):
+            return side
+
+    return "D"
 
 from unittest import TestCase
 class STestCase(TestCase):
@@ -67,12 +62,6 @@ class TestSlice2D(STestCase):
         self.assertSEqual([3, 5, 7], sliced(grid, (0, 2), (1, -1)))
 
 class Test(STestCase):
-
-    def test_Horizontal(self):
-        self.assertEqual(3*["X"], horizontal([
-            "XXX",
-            ".X.",
-            "XOO"], 0))
 
     def test_Given(self):
         self.assertEqual("X", checkio([
