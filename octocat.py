@@ -1,6 +1,7 @@
 from math import sqrt
-from itertools import ifilter, starmap
+from itertools import starmap
 from operator import mul
+from functools import reduce
 
 
 def freeze(x):
@@ -22,12 +23,12 @@ class AStar:
         goal = freeze(goal)
         def dump(x):
             return None
-            print x
+            print(x)
         if neighbors:
             neighbor_edges = lambda x: dump(x) or freeze(neighbors(x))
         else:
             def neighbor_edges(node):
-                for e in ifilter(lambda edge: begin(edge) == node, edges):
+                for e in filter(lambda edge: begin(edge) == node, edges):
                     yield e
 
         closed_set = set()
@@ -93,7 +94,7 @@ def move_coords(puzzle):
             'U': (-1, 0),
             'D': (+1, 0)}
     positive = lambda c: len(puzzle) > c[1][0] >= 0 and len(puzzle[0]) > c[1][1] >= 0
-    coords = filter(positive, [(k, (row + dirs[k][0], col + dirs[k][1])) for k in dirs.keys()])
+    coords = list(filter(positive, [(k, (row + dirs[k][0], col + dirs[k][1])) for k in list(dirs.keys())]))
     return set(coords)
 
 
@@ -101,7 +102,7 @@ def moves(puzzle):
     """returns the possible moves in a format
     (name, source, dest)
     """
-    return map(lambda c: (c[0], (puzzle, swap(find_zero(puzzle), c[1], puzzle))), move_coords(puzzle))
+    return [(c[0], (puzzle, swap(find_zero(puzzle), c[1], puzzle))) for c in move_coords(puzzle)]
 
 
 
@@ -111,14 +112,14 @@ def checkio(puzzle):
         return reduce(lambda x, y: x+y, freeze(a), ())
     def distance(a, b):
         a, b = lin(a), lin(b)
-        return sqrt(sum(starmap(lambda a, b: (a-b)*(a-b), zip(a, b))))
+        return sqrt(sum(starmap(lambda a, b: (a-b)*(a-b), list(zip(a, b)))))
 
     path = AStar.shortest_path(start=puzzle, goal=solved, edges=None, neighbors=moves,
                                begin=lambda x: freeze(x[1][0]),
                                end=lambda x: freeze(x[1][1]),
                                weight=lambda x: 1,
                                h=distance)
-    return "".join(map(lambda x: x[0], path))
+    return "".join([x[0] for x in path])
 
 from unittest import TestCase
 class TestOctoCat(TestCase):

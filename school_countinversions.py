@@ -3,7 +3,7 @@ from itertools import combinations, starmap
 
 def count_inversion(numbers):
     is_inversion = lambda i, j: i < j and numbers[i] > numbers[j]
-    inversions = filter(None, starmap(is_inversion, combinations(range(len(numbers)), 2)))
+    inversions = [_f for _f in starmap(is_inversion, combinations(list(range(len(numbers))), 2)) if _f]
     return sum(inversions)
 
 from unittest import TestCase

@@ -11,7 +11,7 @@ def connects_to(port, station):
 
 
 def ports(csv):
-    return map(port, csv.split(","))
+    return list(map(port, csv.split(",")))
 
 def port(letters):
     return Port(letters[0], letters[1])
@@ -41,11 +41,11 @@ def removed_i(i, lst):
 
 
 def removed_v(v, lst):
-    return filter(lambda x: x != v, lst)
+    return [x for x in lst if x != v]
 
 
 def ifind_paths(station, ports):
-    direct_ports = filter(lambda x: connects_to(x[1], station), enumerate(ports))
+    direct_ports = [x for x in enumerate(ports) if connects_to(x[1], station)]
     for i, port in direct_ports:
         new_ports = removed_i(i, ports)
         new_station = dest(port, station)
@@ -61,9 +61,9 @@ def contains_all_and_ends_in(stations, station):
 
 def checkio(portcsv):
     all_paths = ifind_paths(station="1", ports=ports(portcsv))
-    paths = ifilter(contains_all_and_ends_in("12345678", "1"), all_paths)
-    first_path = "1" + paths.next()
-    print("{} => {}".format(portcsv, first_path))
+    paths = filter(contains_all_and_ends_in("12345678", "1"), all_paths)
+    first_path = "1" + next(paths)
+    print(("{} => {}".format(portcsv, first_path)))
     return first_path
 
 from unittest import TestCase
@@ -72,8 +72,8 @@ from unittest import TestCase
 class Test(TestCase):
 
     def testPortsFromCsv(self):
-        self.assertEqual(ports("12"), map(port, ["12"]))
-        self.assertEqual(ports("12,32,53"), map(port, ["12","32","53"]))
+        self.assertEqual(ports("12"), list(map(port, ["12"])))
+        self.assertEqual(ports("12,32,53"), list(map(port, ["12","32","53"])))
 
     def testReachable(self):
         self.assertTrue(connects_to(port("12"), "1"))

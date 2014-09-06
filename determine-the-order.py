@@ -3,7 +3,7 @@ from itertools import combinations
 
 
 def make_ordering(words, a, b):
-    occurences = filter(lambda w: a in w and b in w, words)
+    occurences = [w for w in words if a in w and b in w]
     if occurences:
         return occurences[0]
 
