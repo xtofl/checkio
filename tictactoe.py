@@ -8,13 +8,14 @@ diagonal2 = lambda grid, side: [side]*3 == [grid[i][2-i] for i in [0, 1, 2]]
 diagonal = lambda grid, side: diagonal1(grid, side) or diagonal2(grid, side)
 
 def checkio(grid):
-    x = any([vertical(grid, "X", i) for i in [0, 1, 2]] +
-            [horizontal(grid, "X", i) for i in [0, 1, 2]] +
-            [diagonal(grid, "X")])
-    o = any([vertical(grid, "O", i) for i in [0, 1, 2]])
-    if x:
+    wins = lambda side: \
+        any([vertical(grid, side, i) for i in [0, 1, 2]] +
+            [horizontal(grid, side, i) for i in [0, 1, 2]] +
+            [diagonal(grid, side)])
+
+    if wins("X"):
         return "X"
-    elif o:
+    elif wins("O"):
         return "O"
     else:
         return "D"
