@@ -47,17 +47,17 @@ right = (0, 1)
 down_right = (1, 1)
 down_left = (1, -1)
 column = lambda grid, col: slice(grid, (0, col), down)
-vertical = lambda grid, side, col: [side]*3 == list(column(grid, col))
-horizontal = lambda grid, side, row: [side]*3 == list(slice(grid, (row, 0), right))
-diagonal1 = lambda grid, side: [side]*3 == list(slice(grid, (0, 0), down_right))
-diagonal2 = lambda grid, side: [side]*3 == list(slice(grid, (0, 2), down_left))
-diagonal = lambda grid, side: diagonal1(grid, side) or diagonal2(grid, side)
+vertical = lambda grid, col: list(column(grid, col))
+horizontal = lambda grid, row: list(slice(grid, (row, 0), right))
+diagonal1 = lambda grid: list(slice(grid, (0, 0), down_right))
+diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
 
 def checkio(grid):
     wins = lambda side: \
-        any([vertical(grid, side, i) for i in [0, 1, 2]] +
-            [horizontal(grid, side, i) for i in [0, 1, 2]] +
-            [diagonal(grid, side)])
+        any([[side]*3 == s for s in
+                 [vertical(grid, i) for i in [0, 1, 2]] +
+                 [horizontal(grid, i) for i in [0, 1, 2]] +
+                 [diagonal1(grid), diagonal2(grid)]])
 
     if wins("X"):
         return "X"
@@ -81,10 +81,10 @@ class Test(STestCase):
             [3, 4, 8]], 2))
 
     def test_Horizontal(self):
-        self.assertTrue(horizontal([
+        self.assertEqual(3*["X"], horizontal([
             "XXX",
             ".X.",
-            "XOO"], "X", 0))
+            "XOO"], 0))
 
     def test_Given(self):
         self.assertEqual("X", checkio([
