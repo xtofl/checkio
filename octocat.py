@@ -166,3 +166,4 @@ class TestOctoCat(TestCase):
             [[1, 2, 3],
              [4, 6, 8],
              [7, 5, 0]]))
+        self.assertTrue(checkio([[4, 3, 1], [2, 5, 0], [7, 8, 6]]))
