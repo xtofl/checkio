@@ -175,20 +175,20 @@ class AStar:
         f[start] = g[start] + h(start, goal)
 
         while open_set:
-            current = min(open_set, key=lambda x: f[x])
-            if current == goal:
-                return AStar.reconstruct_path(came_from, goal)
+            next = min(open_set, key=lambda x: f[x])
+            if next == goal:
+                return AStar.reconstruct_path(came_from, goal, begin=begin)
 
-            open_set.remove(current)
-            closed_set.add(current)
+            open_set.remove(next)
+            closed_set.add(next)
 
-            for neighbor_edge in neighbor_edges(current):
-                if neighbor_edge.end in closed_set:
+            for neighbor_edge in neighbor_edges(next):
+                if end(neighbor_edge) in closed_set:
                     continue
-                tentative_g = g[current] + neighbor_edge.weight()
+                tentative_g = g[next] + weight(neighbor_edge)
 
-                neighbor = neighbor_edge.end
-                if not neighbor in open_set or tentative_g < g[neighbor_edge.end]:
+                neighbor = end(neighbor_edge)
+                if not neighbor in open_set or tentative_g < g[end(neighbor_edge)]:
                     came_from[neighbor] = neighbor_edge
                     g[neighbor] = tentative_g
                     f[neighbor] = g[neighbor] + h(neighbor, goal)
@@ -198,10 +198,10 @@ class AStar:
         raise ValueError("no path possible")
 
     @staticmethod
-    def reconstruct_path(came_from, current_node):
+    def reconstruct_path(came_from, current_node, begin=lambda x: x.begin):
         if current_node in came_from:
             edge_to_current = came_from[current_node]
-            p = AStar.reconstruct_path(came_from, edge_to_current.begin)
+            p = AStar.reconstruct_path(came_from, begin(edge_to_current), begin=begin)
             return p + [edge_to_current]
         else:
             return []
