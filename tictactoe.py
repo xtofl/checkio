@@ -42,11 +42,15 @@ class TestSlice2D(STestCase):
         self.assertSEqual([1, 5, 9], slice(grid, (0, 0), (1, 1)))
         self.assertSEqual([3, 5, 7], slice(grid, (0, 2), (1, -1)))
 
-column = lambda grid, col: [row[col] for row in grid]
+down = (1, 0)
+right = (0, 1)
+down_right = (1, 1)
+down_left = (1, -1)
+column = lambda grid, col: slice(grid, (0, col), down)
 vertical = lambda grid, side, col: [side]*3 == list(column(grid, col))
-horizontal = lambda grid, side, row: side*3 == grid[row]
-diagonal1 = lambda grid, side: [side]*3 == [grid[i][i] for i in [0, 1, 2]]
-diagonal2 = lambda grid, side: [side]*3 == [grid[i][2-i] for i in [0, 1, 2]]
+horizontal = lambda grid, side, row: [side]*3 == list(slice(grid, (row, 0), right))
+diagonal1 = lambda grid, side: [side]*3 == list(slice(grid, (0, 0), down_right))
+diagonal2 = lambda grid, side: [side]*3 == list(slice(grid, (0, 2), down_left))
 diagonal = lambda grid, side: diagonal1(grid, side) or diagonal2(grid, side)
 
 def checkio(grid):
