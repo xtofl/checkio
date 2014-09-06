@@ -54,7 +54,7 @@ diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
 
 def checkio(grid):
     wins = lambda side: \
-        any([[side]*3 == s for s in
+        any([[side]*3 in
                  [vertical(grid, i) for i in [0, 1, 2]] +
                  [horizontal(grid, i) for i in [0, 1, 2]] +
                  [diagonal1(grid), diagonal2(grid)]])
