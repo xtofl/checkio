@@ -1,7 +1,7 @@
 __author__ = 'xtofl'
 
 from collections import namedtuple
-from itertools import ifilter, imap, starmap, ifilterfalse
+from itertools import starmap, filterfalse
 from math import sqrt
 
 
@@ -80,7 +80,7 @@ def bat_graph(cave):
     inter_bat_edges = [Edge(x, y) for x in nodes for y in nodes if not x is y]
     bat_alpha_edges = [Edge(x, cave.alpha) for x in nodes]
     edges = inter_bat_edges + bat_alpha_edges
-    arcs_no_walls = ifilterfalse(lambda edge: any(map(lambda wall: wall.intersects(edge), cave.walls)), edges)
+    arcs_no_walls = filterfalse(lambda edge: any([wall.intersects(edge) for wall in cave.walls]), edges)
     return Graph(nodes, frozenset(arcs_no_walls))
 
 
@@ -162,7 +162,7 @@ class AStar:
     @staticmethod
     def shortest_path(start, goal, edges, h=lambda vertex, goal: 0):
         def neighbor_edges(node):
-            for e in ifilter(lambda edge: edge.begin == node, edges):
+            for e in filter(lambda edge: edge.begin == node, edges):
                 yield e
 
         closed_set = set()
@@ -208,7 +208,7 @@ class AStar:
 
 
 def length(path):
-    return sum(imap(lambda edge: edge.weight(), path))
+    return sum(map(lambda edge: edge.weight(), path))
 
 def checkio(cave_lines):
     cave = parse_cave(cave_lines)
