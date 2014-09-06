@@ -1,23 +1,23 @@
-from text_holes_golf import *
+import text_holes_golf
 from unittest.case import TestCase
 
 class golfTest(TestCase):
 
     def testGiven(self):
-        self.assertEqual(1, golf(["xxx","x x", "xxx"]))
+        self.assertEqual(1, text_holes_golf.golf(["xxx","x x", "xxx"]))
 
-        self.assertEqual(1, golf([
+        self.assertEqual(1, text_holes_golf.golf([
             "Lorem Ipsum?",
             "Of course!!!",
             "Fine! good buy!"]))
 
 
-        self.assertEqual(2, golf([
+        self.assertEqual(2, text_holes_golf.golf([
             "xxxxx",
             "x x x",
             "xxxxx"]))
 
-        self.assertEqual(3, golf([
+        self.assertEqual(3, text_holes_golf.golf([
             "How are you doing?",
             "I'm fine. OK.",
             "Lorem Ipsum?",
@@ -27,7 +27,7 @@ class golfTest(TestCase):
             "1234567890",
             "Fine! good buy!"]))
 
-        self.assertEqual(5, golf([
+        self.assertEqual(5, text_holes_golf.golf([
             "J  ck wU phP  UZfhHx",
             "YNJ ugWNxKsPRasldco",
             "hnIsUlWVO EhIyoNwLNZ",

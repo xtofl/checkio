@@ -20,7 +20,7 @@ def check_code(codestring):
 
         lines = traceback.format_exception_only(SyntaxError, detail)
         for line in lines:
-            print(line.replace('File "<string>"', ''))
+            print((line.replace('File "<string>"', '')))
         return None
 
 def check_file(path):
@@ -29,6 +29,7 @@ def check_file(path):
         codestring = f.read()
     len = check_code(codestring)
     print(len)
+    return len
 
 if __name__ == '__main__':
     # cf: http://www.opensource.apple.com/source/python/python-3/python/Lib/py_compile.py

@@ -1,6 +1,6 @@
 
 
-column = lambda grid, col: map(lambda row: row[col], grid)
+column = lambda grid, col: [row[col] for row in grid]
 vertical = lambda grid, side, col: [side]*3 == list(column(grid, col))
 horizontal = lambda grid, side, row: side*3 == grid[row]
 diagonal1 = lambda grid, side: [side]*3 == [grid[i][i] for i in [0, 1, 2]]

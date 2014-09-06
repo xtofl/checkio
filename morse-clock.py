@@ -17,12 +17,12 @@ def expand(part):
     else: return part
 
 def checkio(timestring):
-    parts = map(expand, timestring.split(":"))
+    parts = list(map(expand, timestring.split(":")))
     digits = "".join(parts)
-    encoded_digits = map(lambda x: encode_digit(*x), zip(digits, [2, 4, 3, 4, 3, 4]))
+    encoded_digits = [encode_digit(*x) for x in zip(digits, [2, 4, 3, 4, 3, 4])]
     i = iter(encoded_digits)
-    per_two = zip(i, iter(i))
-    return " : ".join(map(lambda part: "{} {}".format(*part), per_two))
+    per_two = list(zip(i, iter(i)))
+    return " : ".join(["{} {}".format(*part) for part in per_two])
 
 
 from unittest import TestCase
