@@ -17,6 +17,9 @@ def sliced(grid, start, step):
         yield item(grid, current)
         current = [a + b for a, b in zip(current, step)]
 
+def make_sliced(start, step):
+    return lambda grid: list(sliced(grid, start, step))
+
 down = (1, 0)
 right = (0, 1)
 down_right = (1, 1)
@@ -24,11 +27,11 @@ down_left = (1, -1)
 
 def checkio(grid):
     wins = lambda side: \
-        any([[side]*3 in
-             [list(sliced(grid, (0, i), down)) for i in [0, 1, 2]] +
-             [list(sliced(grid, (i, 0), right)) for i in [0, 1, 2]] +
-             [list(sliced(grid, (0, 0), down_right))] +
-             [list(sliced(grid, (0, 2), down_left))]])
+        any([[side]*3 in [slice_of(grid) for slice_of in
+             [make_sliced((0, i), down) for i in [0, 1, 2]] +
+             [make_sliced((i, 0), right) for i in [0, 1, 2]] +
+             [make_sliced((0, 0), down_right)] +
+             [make_sliced((0, 2), down_left)]]])
 
     for side in ["X", "O"]:
         if wins(side):
