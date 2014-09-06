@@ -1,18 +1,19 @@
 
 def valid(grid, coord):
-    if not coord: return True
-    return len(grid) > coord[0] and valid(grid[coord[0]], coord[1:])
+    return (not coord) or \
+        ((len(grid) > coord[0]) and valid(grid[coord[0]], coord[1:]))
 
-def resolve(grid, coord):
+def item(grid, coord):
     if len(coord) == 1:
         return grid[coord[0]]
     else:
-        return resolve(grid[coord[0]], coord[1:])
+        return item(grid[coord[0]], coord[1:])
 
-def slice(grid, start, step):
+
+def sliced(grid, start, step):
     current = start
     while valid(grid, current):
-        yield resolve(grid, current)
+        yield item(grid, current)
         current = [a + b for a, b in zip(current, step)]
 
 
@@ -21,10 +22,10 @@ right = (0, 1)
 down_right = (1, 1)
 down_left = (1, -1)
 
-vertical = lambda grid, col: list(slice(grid, (0, col), down))
-horizontal = lambda grid, row: list(slice(grid, (row, 0), right))
-diagonal1 = lambda grid: list(slice(grid, (0, 0), down_right))
-diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
+vertical = lambda grid, col: list(sliced(grid, (0, col), down))
+horizontal = lambda grid, row: list(sliced(grid, (row, 0), right))
+diagonal1 = lambda grid: list(sliced(grid, (0, 0), down_right))
+diagonal2 = lambda grid: list(sliced(grid, (0, 2), down_left))
 
 def checkio(grid):
     wins = lambda side: \
@@ -55,15 +56,15 @@ class TestSlice2D(STestCase):
         self.assertFalse(valid([[], [1, 2]], (0, 1)))
 
     def test_One(self):
-        self.assertSEqual([1, 2], slice([1, 2], (0,), (1,)))
+        self.assertSEqual([1, 2], sliced([1, 2], (0,), (1,)))
 
         grid = [[1, 2, 3],
                 [4, 5, 6],
                 [7, 8, 9]]
-        self.assertSEqual([1, 2, 3], slice(grid, (0, 0), (0, 1)))
-        self.assertSEqual([2, 3], slice(grid, (0, 1), (0, 1)))
-        self.assertSEqual([1, 5, 9], slice(grid, (0, 0), (1, 1)))
-        self.assertSEqual([3, 5, 7], slice(grid, (0, 2), (1, -1)))
+        self.assertSEqual([1, 2, 3], sliced(grid, (0, 0), (0, 1)))
+        self.assertSEqual([2, 3], sliced(grid, (0, 1), (0, 1)))
+        self.assertSEqual([1, 5, 9], sliced(grid, (0, 0), (1, 1)))
+        self.assertSEqual([3, 5, 7], sliced(grid, (0, 2), (1, -1)))
 
 class Test(STestCase):
 
