@@ -16,8 +16,31 @@ def slice(grid, start, step):
         current = [a + b for a, b in zip(current, step)]
 
 
-from unittest import TestCase
+down = (1, 0)
+right = (0, 1)
+down_right = (1, 1)
+down_left = (1, -1)
 
+vertical = lambda grid, col: list(slice(grid, (0, col), down))
+horizontal = lambda grid, row: list(slice(grid, (row, 0), right))
+diagonal1 = lambda grid: list(slice(grid, (0, 0), down_right))
+diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
+
+def checkio(grid):
+    wins = lambda side: \
+        any([[side]*3 in
+             [vertical(grid, i) for i in [0, 1, 2]] +
+             [horizontal(grid, i) for i in [0, 1, 2]] +
+             [diagonal1(grid), diagonal2(grid)]])
+
+    if wins("X"):
+        return "X"
+    elif wins("O"):
+        return "O"
+    else:
+        return "D"
+
+from unittest import TestCase
 class STestCase(TestCase):
     def assertSEqual(self, s1, s2):
         return super().assertEqual(list(s1), list(s2))
@@ -41,32 +64,6 @@ class TestSlice2D(STestCase):
         self.assertSEqual([2, 3], slice(grid, (0, 1), (0, 1)))
         self.assertSEqual([1, 5, 9], slice(grid, (0, 0), (1, 1)))
         self.assertSEqual([3, 5, 7], slice(grid, (0, 2), (1, -1)))
-
-down = (1, 0)
-right = (0, 1)
-down_right = (1, 1)
-down_left = (1, -1)
-
-vertical = lambda grid, col: list(slice(grid, (0, col), down))
-horizontal = lambda grid, row: list(slice(grid, (row, 0), right))
-diagonal1 = lambda grid: list(slice(grid, (0, 0), down_right))
-diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
-
-def checkio(grid):
-    wins = lambda side: \
-        any([[side]*3 in
-                 [vertical(grid, i) for i in [0, 1, 2]] +
-                 [horizontal(grid, i) for i in [0, 1, 2]] +
-                 [diagonal1(grid), diagonal2(grid)]])
-
-    if wins("X"):
-        return "X"
-    elif wins("O"):
-        return "O"
-    else:
-        return "D"
-
-from unittest import TestCase
 
 class Test(STestCase):
 
