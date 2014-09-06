@@ -46,8 +46,8 @@ down = (1, 0)
 right = (0, 1)
 down_right = (1, 1)
 down_left = (1, -1)
-column = lambda grid, col: slice(grid, (0, col), down)
-vertical = lambda grid, col: list(column(grid, col))
+
+vertical = lambda grid, col: list(slice(grid, (0, col), down))
 horizontal = lambda grid, row: list(slice(grid, (row, 0), right))
 diagonal1 = lambda grid: list(slice(grid, (0, 0), down_right))
 diagonal2 = lambda grid: list(slice(grid, (0, 2), down_left))
@@ -69,16 +69,6 @@ def checkio(grid):
 from unittest import TestCase
 
 class Test(STestCase):
-
-    def test_Column(self):
-        self.assertSEqual([1, 2, 3], column([
-            [1, 4, 4],
-            [2, 4, 4],
-            [3, 4, 4]], 0))
-        self.assertSEqual([4, 6, 8], column([
-            [1, 4, 4],
-            [2, 4, 6],
-            [3, 4, 8]], 2))
 
     def test_Horizontal(self):
         self.assertEqual(3*["X"], horizontal([
