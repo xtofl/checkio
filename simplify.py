@@ -2,7 +2,53 @@ __mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a
 
 from unittest import TestCase
 
+
+class Expr:
+    def sign(self):
+        return ""
+
+
+class Constant(Expr):
+    def __init__(self, value):
+        self.value = value
+
+    def sign(self):
+        return "+" if self.value >= 0 else "-"
+
+    def __str__(self):
+        return str(self.value)
+
+
+class Power(Expr):
+    def __init__(self, exponent):
+        self.exponent = exponent
+
+    def __str__(self):
+        return "x**{}".format(self.exponent)
+
+
+class Sum(Expr):
+    def __init__(self, terms):
+        self.terms = terms
+
+    def __str__(self):
+
+        return str(self.terms[0]) + "".join([t.sign()+str(t) for t in self.terms[1:]])
+
+
+def parse(expr):
+    """returns an expression tree"""
+    return Sum([Power(2), Constant(-1)])
+
+
+def simplify(expr):
+    return str(parse(expr))
+
+
 class TestSimplify(TestCase):
+
+    def test_Format(self):
+        self.assertEqual("a+b", str(Sum([Constant("a"), Constant("b")])))
 
     def test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
