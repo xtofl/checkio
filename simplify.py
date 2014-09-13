@@ -4,8 +4,8 @@ from unittest import TestCase
 
 
 class Expr:
-    def fmt(self):
-        return "?"
+    pass
+
 
 class Constant(Expr):
     def __init__(self, value):
@@ -14,26 +14,37 @@ class Constant(Expr):
     def negative(self):
         return self.value < 0
 
-    def fmt(self):
-        return str(self.value)
+    def abs_fmt(self):
+        return str(abs(self.value))
 
 
 class Power(Expr):
     def __init__(self, exponent):
         self.exponent = exponent
 
-    def fmt(self):
+    def abs_fmt(self):
         return "x**{}".format(self.exponent)
 
+
+class Term(Expr):
+    def __init__(self, factor, exponent):
+        self.factor = factor
+        self.exponent = exponent
+
+    def negative(self):
+        return self.factor.negative()
+
+    def abs_fmt(self):
+        return "{}*{}".format(self.factor.abs_fmt(), self.exponent.abs_fmt())
 
 class Sum(Expr):
     def __init__(self, terms):
         self.terms = terms
 
     def __str__(self):
-        return self.terms[0].fmt() + \
+        return self.terms[0].abs_fmt() + \
                "".join([
-                   ('-' if t.negative() else '+') + t.fmt()
+                   ('-' if t.negative() else '+') + t.abs_fmt()
                    for t in self.terms[1:]])
 
 
@@ -50,6 +61,9 @@ class TestSimplify(TestCase):
 
     def test_Format(self):
         self.assertEqual("1+2", str(Sum([Constant(1), Constant(2)])))
+
+        self.assertEqual("8*x**5", Term(Constant(-8), Power(5)).abs_fmt())
+        self.assertEqual("8*x**5", Term(Constant(8), Power(5)).abs_fmt())
 
     def test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
