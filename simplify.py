@@ -4,19 +4,15 @@ from unittest import TestCase
 
 
 class Expr:
-    def negative(self):
-        return None
-
     def fmt(self):
         return "?"
-
 
 class Constant(Expr):
     def __init__(self, value):
         self.value = value
 
-    def sign(self):
-        return "+" if self.value >= 0 else "-"
+    def negative(self):
+        return self.value < 0
 
     def fmt(self):
         return str(self.value)
@@ -53,7 +49,7 @@ def simplify(expr):
 class TestSimplify(TestCase):
 
     def test_Format(self):
-        self.assertEqual("a+b", str(Sum([Constant("a"), Constant("b")])))
+        self.assertEqual("1+2", str(Sum([Constant(1), Constant(2)])))
 
     def test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
