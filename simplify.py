@@ -17,6 +17,9 @@ class Constant(Expr):
     def abs_fmt(self):
         return str(abs(self.value))
 
+    def pattern(self):
+        return "c"
+
 
 class Power(Expr):
     def __init__(self, exponent):
@@ -24,6 +27,9 @@ class Power(Expr):
 
     def abs_fmt(self):
         return "x**{}".format(self.exponent)
+
+    def pattern(self):
+        return "^"
 
 
 class Term(Expr):
@@ -37,20 +43,26 @@ class Term(Expr):
     def abs_fmt(self):
         return "{}*{}".format(self.factor.abs_fmt(), self.exponent.abs_fmt())
 
+    def pattern(self):
+        return "t"
+
+
 class Sum(Expr):
-    def __init__(self, terms):
+    def __init__(self, *terms):
         self.terms = terms
 
-    def __str__(self):
+    def fmt(self):
         return self.terms[0].abs_fmt() + \
                "".join([
                    ('-' if t.negative() else '+') + t.abs_fmt()
                    for t in self.terms[1:]])
 
+    def pattern(self):
+        return "".join([t.pattern() for t in self.terms])
 
 def parse(expr):
     """returns an expression tree"""
-    return Sum([Power(2), Constant(-1)])
+    return Sum(Power(2), Constant(-1))
 
 
 def simplify(expr):
@@ -60,12 +72,26 @@ def simplify(expr):
 class TestSimplify(TestCase):
 
     def test_Format(self):
-        self.assertEqual("1+2", str(Sum([Constant(1), Constant(2)])))
+        self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
 
         self.assertEqual("8*x**5", Term(Constant(-8), Power(5)).abs_fmt())
         self.assertEqual("8*x**5", Term(Constant(8), Power(5)).abs_fmt())
 
-    def test_Given(self):
+        term1 = Term(Constant(8), Power(5))
+        term2 = Term(Constant(-2), Power(2))
+        self.assertEqual("8*x**5-2*x**2", Sum(term1, term2).fmt())
+
+    def test_RuleMatching(self):
+        self.assertEqual("c", Constant(1).pattern())
+        self.assertEqual("^", Power(1).pattern())
+        self.assertEqual("t", Term(1, 2).pattern())
+        term1 = Term(Constant(8), Power(5))
+        term2 = Term(Constant(-2), Power(2))
+        sum = Sum(term1, term2)
+        self.assertEqual("tt", sum.pattern())
+
+
+    def _test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
         self.assertEqual("x**2+2*x+1", simplify("(x+1)*(x+1)"))
         self.assertEqual("x**2+6*x", simplify("(x+3)*x*2-x*x"))
