@@ -4,8 +4,11 @@ from unittest import TestCase
 
 
 class Expr:
-    def sign(self):
-        return ""
+    def negative(self):
+        return None
+
+    def fmt(self):
+        return "?"
 
 
 class Constant(Expr):
@@ -15,7 +18,7 @@ class Constant(Expr):
     def sign(self):
         return "+" if self.value >= 0 else "-"
 
-    def __str__(self):
+    def fmt(self):
         return str(self.value)
 
 
@@ -23,7 +26,7 @@ class Power(Expr):
     def __init__(self, exponent):
         self.exponent = exponent
 
-    def __str__(self):
+    def fmt(self):
         return "x**{}".format(self.exponent)
 
 
@@ -32,8 +35,10 @@ class Sum(Expr):
         self.terms = terms
 
     def __str__(self):
-
-        return str(self.terms[0]) + "".join([t.sign()+str(t) for t in self.terms[1:]])
+        return self.terms[0].fmt() + \
+               "".join([
+                   ('-' if t.negative() else '+') + t.fmt()
+                   for t in self.terms[1:]])
 
 
 def parse(expr):
