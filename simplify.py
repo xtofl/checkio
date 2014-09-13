@@ -47,6 +47,13 @@ class Term(Expr):
         return "t"
 
 
+class Product(Expr):
+    def __init__(self, *factors):
+        self.factors = factors
+
+    def pattern(self):
+        return "*"
+
 class Sum(Expr):
     def __init__(self, *terms):
         self.terms = terms
@@ -89,6 +96,7 @@ class TestSimplify(TestCase):
         term2 = Term(Constant(-2), Power(2))
         sum = Sum(term1, term2)
         self.assertEqual("tt", sum.pattern())
+        self.assertEqual("*", Product(term1, term2).pattern())
 
 
     def _test_Given(self):
