@@ -1,5 +1,7 @@
-__mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a6e8b459e74b63451b9c30/"""
+from operator import mul
 
+__mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a6e8b459e74b63451b9c30/"""
+from functools import reduce
 from unittest import TestCase
 
 
@@ -54,6 +56,16 @@ class Product(Expr):
     def pattern(self):
         return "*"
 
+    def simplify(self):
+        if all([f.pattern() == "t" for f in self.factors]):
+            return Term(reduce(mul, [f.factor for f in self.factors]))
+
+class Reductions:
+
+    @staticmethod
+    def distribute(terms, factor):
+        return [(t, factor) for t in terms]
+
 class Sum(Expr):
     def __init__(self, *terms):
         self.terms = terms
@@ -98,6 +110,12 @@ class TestSimplify(TestCase):
         self.assertEqual("tt", sum.pattern())
         self.assertEqual("*", Product(term1, term2).pattern())
 
+
+    def test_Simplification(self):
+        term1 = Term(Constant(8), Power(5))
+        term2 = Term(Constant(-2), Power(2))
+        product = Product(term1, term2)
+        self.assertEqual("t", product.simplify().pattern())
 
     def _test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
