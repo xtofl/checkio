@@ -35,6 +35,9 @@ class Power(Expr):
     def abs_fmt(self):
         return "x**{}".format(self.exponent)
 
+    def negative(self):
+        return False
+
     def simplify(self):
         return self
 
@@ -42,38 +45,26 @@ class Power(Expr):
         return "^"
 
 
-class Term(Expr):
-    def __init__(self, factor, exponent):
-        self.factor = factor
-        self.exponent = exponent
-
-    def negative(self):
-        return self.factor.negative()
-
-    def abs_fmt(self):
-        return "{}*{}".format(self.factor.abs_fmt(), self.exponent.abs_fmt())
-
-    def simplify(self):
-        return [self]
-
-    def pattern(self):
-        return "t"
-
-
 class Product(Expr):
     def __init__(self, *factors):
-        self.factors = factors
+        self.factors = tuple(factors)
 
     def pattern(self):
         return "*"
 
+    def negative(self):
+        return sum((f.negative() for f in self.factors)) % 2 == 1
+
     def simplify(self):
         if all(lambda t: (t)==t.simplify() for t in self.factors):
-            return [self]
-        terms0 = self.factors[0].simplify()
-        terms1 = self.factors[1].simplify()
-        return (Product(t0, t1).simplify() for t0, t1 in product(terms0, terms1))
+            return (self,)
+        constants = (f for f in self.factors if f is Constant)
+        constant = Constant(reduce(mul, constants, 1))
+        nonconstants = (f.simplify() for f in self.factors if not f is Constant)
+        return tuple(Product(t0, t1).simplify() for t0, t1 in product(terms0, terms1))
 
+    def abs_fmt(self):
+        return "*".join((f.abs_fmt() for f in self.factors))
 
 class Sum(Expr):
     def __init__(self, *terms):
@@ -90,6 +81,10 @@ class Sum(Expr):
 
     def pattern(self):
         return "".join([t.pattern() for t in self.terms])
+
+    def abs_fmt(self):
+        return "+".join((f.abs_fmt() for f in self.terms))
+
 
 def parse(expr):
     """returns an expression tree"""
@@ -108,35 +103,38 @@ class Reductions:
 
 class TestSimplify(TestCase):
 
+    def test_Product(self):
+        self.assertEqual(True, Product(Constant(-1), Constant(1)).negative())
+
     def test_Format(self):
         self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
 
-        self.assertEqual("8*x**5", Term(Constant(-8), Power(5)).abs_fmt())
-        self.assertEqual("8*x**5", Term(Constant(8), Power(5)).abs_fmt())
+        self.assertEqual("8*x**5", Product(Constant(-8), Power(5)).abs_fmt())
+        self.assertEqual("8*x**5", Product(Constant(8), Power(5)).abs_fmt())
 
-        term1 = Term(Constant(8), Power(5))
-        term2 = Term(Constant(-2), Power(2))
+        term1 = Product(Constant(8), Power(5))
+        term2 = Product(Constant(-2), Power(2))
         self.assertEqual("8*x**5-2*x**2", Sum(term1, term2).fmt())
 
     def test_RuleMatching(self):
         self.assertEqual("c", Constant(1).pattern())
         self.assertEqual("^", Power(1).pattern())
-        self.assertEqual("t", Term(1, 2).pattern())
-        term1 = Term(Constant(8), Power(5))
-        term2 = Term(Constant(-2), Power(2))
+        self.assertEqual("*", Product(1, 2).pattern())
+        term1 = Product(Constant(8), Power(5))
+        term2 = Product(Constant(-2), Power(2))
         sum = Sum(term1, term2)
-        self.assertEqual("tt", sum.pattern())
+        self.assertEqual("**", sum.pattern())
         self.assertEqual("*", Product(term1, term2).pattern())
 
 
     def test_Simplification(self):
-        term1 = Term(Constant(8), Power(5))
-        term2 = Term(Constant(-2), Power(2))
+        term1 = Product(Constant(8), Power(5))
+        term2 = Product(Constant(-2), Power(2))
         s = Sum(term1, term2)
         factor = Constant(5)
         product = Product(Constant(5), s) # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
         #self.assertEqual(((factor, term1), (factor, term2)), Reductions.distribute(factor, [term1, term2]))
-        self.assertEqual((Term(Constant(40), Power(5)), Term(Constant(-10), Power(2))),
+        self.assertEqual((Product(Constant(40), Power(5)), Product(Constant(-10), Power(2))),
                          product.simplify())
 
     def _test_Given(self):
