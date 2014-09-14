@@ -67,11 +67,11 @@ class Product(Expr):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
     def simplify(self):
-        constants = (f for f in self.factors if f is Constant)
-        powers = (f for f in self.factors if f is Power)
-        sums = (f for f in self.factors if f is Sum)
+        constants = (f for f in self.factors if type(f) is Constant)
+        powers = (f for f in self.factors if type(f) is Power)
+        sums = (f for f in self.factors if type(f) is Sum)
 
-        constant = Constant(reduce(mul, constants, 1)) if constants else None
+        constant = Constant(reduce(mul, (c.value for c in constants), 1)) if constants else None
         power = Power(reduce(sum, (p.exponent for p in powers), 0)) if powers else None
         simple_factors = tuple(f for f in (constant, power) if f)
 
@@ -126,7 +126,6 @@ class TestSimplify(TestCase):
         factor = Constant(5)
         product = Product(Constant(5), s) # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
         simplified = product.simplify()
-        self.assertTrue(simplified is Sum)
         self.assertEqual(Sum(Product(Constant(40), Power(5)), Product(Constant(-10), Power(2))),
                          simplified)
 
