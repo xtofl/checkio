@@ -84,6 +84,10 @@ class Product(Expr):
         return "*".join((f.abs_fmt() for f in self.factors))
 
     def __eq__(self, other):
+        if other is self:
+            return True
+        if not type(other) is Product:
+            return False
         return self.factors == other.factors
 
 
