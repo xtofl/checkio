@@ -1,9 +1,9 @@
-from itertools import product
+from itertools import product, chain
 from operator import mul
-
-__mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a6e8b459e74b63451b9c30/"""
 from functools import reduce
 from unittest import TestCase
+
+__mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a6e8b459e74b63451b9c30/"""
 
 
 class Expr:
@@ -24,9 +24,6 @@ class Constant(Expr):
     def simplify(self):
         return [self]
 
-    def pattern(self):
-        return "c"
-
 
 class Power(Expr):
     def __init__(self, exponent):
@@ -41,34 +38,10 @@ class Power(Expr):
     def simplify(self):
         return self
 
-    def pattern(self):
-        return "^"
-
-
-class Product(Expr):
-    def __init__(self, *factors):
-        self.factors = tuple(factors)
-
-    def pattern(self):
-        return "*"
-
-    def negative(self):
-        return sum((f.negative() for f in self.factors)) % 2 == 1
-
-    def simplify(self):
-        if all(lambda t: (t)==t.simplify() for t in self.factors):
-            return (self,)
-        constants = (f for f in self.factors if f is Constant)
-        constant = Constant(reduce(mul, constants, 1))
-        nonconstants = (f.simplify() for f in self.factors if not f is Constant)
-        return tuple(Product(t0, t1).simplify() for t0, t1 in product(terms0, terms1))
-
-    def abs_fmt(self):
-        return "*".join((f.abs_fmt() for f in self.factors))
 
 class Sum(Expr):
     def __init__(self, *terms):
-        self.terms = terms
+        self.terms = tuple(terms)
 
     def fmt(self):
         return self.terms[0].abs_fmt() + \
@@ -77,13 +50,41 @@ class Sum(Expr):
                    for t in self.terms[1:]])
 
     def simplify(self):
-        return reduce(lambda lst, t: lst+(t), (t.simplify() for t in self.terms))
-
-    def pattern(self):
-        return "".join([t.pattern() for t in self.terms])
+        return reduce(lambda lst, t: lst+(t,), (t.simplify() for t in self.terms))
 
     def abs_fmt(self):
         return "+".join((f.abs_fmt() for f in self.terms))
+
+    def __eq__(self, other):
+        return self.terms == other.terms
+
+
+class Product(Expr):
+    def __init__(self, *factors):
+        self.factors = tuple(factors)
+
+    def negative(self):
+        return sum((f.negative() for f in self.factors)) % 2 == 1
+
+    def simplify(self):
+        constants = (f for f in self.factors if f is Constant)
+        powers = (f for f in self.factors if f is Power)
+        sums = (f for f in self.factors if f is Sum)
+
+        constant = Constant(reduce(mul, constants, 1)) if constants else None
+        power = Power(reduce(sum, (p.exponent for p in powers), 0)) if powers else None
+        simple_factors = tuple(f for f in (constant, power) if f)
+
+        if not sums:
+            return Product(simple_factors)
+        else:
+            return Sum((Product(chain(simple_factors, c)) for c in product(sums)))
+
+    def abs_fmt(self):
+        return "*".join((f.abs_fmt() for f in self.factors))
+
+    def __eq__(self, other):
+        return self.factors == other.factors
 
 
 def parse(expr):
@@ -115,16 +116,7 @@ class TestSimplify(TestCase):
         term1 = Product(Constant(8), Power(5))
         term2 = Product(Constant(-2), Power(2))
         self.assertEqual("8*x**5-2*x**2", Sum(term1, term2).fmt())
-
-    def test_RuleMatching(self):
-        self.assertEqual("c", Constant(1).pattern())
-        self.assertEqual("^", Power(1).pattern())
-        self.assertEqual("*", Product(1, 2).pattern())
-        term1 = Product(Constant(8), Power(5))
-        term2 = Product(Constant(-2), Power(2))
-        sum = Sum(term1, term2)
-        self.assertEqual("**", sum.pattern())
-        self.assertEqual("*", Product(term1, term2).pattern())
+        self.assertEqual(term1, term1)
 
 
     def test_Simplification(self):
@@ -133,9 +125,10 @@ class TestSimplify(TestCase):
         s = Sum(term1, term2)
         factor = Constant(5)
         product = Product(Constant(5), s) # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
-        #self.assertEqual(((factor, term1), (factor, term2)), Reductions.distribute(factor, [term1, term2]))
-        self.assertEqual((Product(Constant(40), Power(5)), Product(Constant(-10), Power(2))),
-                         product.simplify())
+        simplified = product.simplify()
+        self.assertTrue(simplified is Sum)
+        self.assertEqual(Sum(Product(Constant(40), Power(5)), Product(Constant(-10), Power(2))),
+                         simplified)
 
     def _test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
