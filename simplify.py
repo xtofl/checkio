@@ -55,6 +55,9 @@ class Sum(Expr):
     def abs_fmt(self):
         return "+".join((f.abs_fmt() for f in self.terms))
 
+    def __repr__(self):
+        return "Sum({})".format(tuple(repr(t) for t in self.terms))
+
     def __eq__(self, other):
         return self.terms == other.terms
 
@@ -82,6 +85,9 @@ class Product(Expr):
 
     def abs_fmt(self):
         return "*".join((f.abs_fmt() for f in self.factors))
+
+    def __repr__(self):
+        return "Product({})".format(tuple(repr(f) for f in self.factors))
 
     def __eq__(self, other):
         if other is self:
