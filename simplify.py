@@ -22,7 +22,7 @@ class Constant(Expr):
         return str(abs(self.value))
 
     def simplify(self):
-        return [self]
+        return self
 
 
 class Power(Expr):
