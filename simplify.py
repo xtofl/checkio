@@ -59,6 +59,10 @@ class Sum(Expr):
         return "Sum({})".format(tuple(repr(t) for t in self.terms))
 
     def __eq__(self, other):
+        if self is other:
+            return True
+        if not type(other) is Sum:
+            return False
         return self.terms == other.terms
 
 
