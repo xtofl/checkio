@@ -80,12 +80,12 @@ class Product(Expr):
 
         constant = Constant(reduce(mul, (c.value for c in constants), 1)) if constants else None
         power = Power(reduce(sum, (p.exponent for p in powers), 0)) if powers else None
-        simple_factors = tuple(f for f in (constant, power) if f)
+        simple_factors = (f for f in (constant, power) if f)
 
         if not sums:
             return Product(simple_factors)
         else:
-            return Sum((Product(chain(simple_factors, c)) for c in product(sums)))
+            return Sum(*(Product(*chain(simple_factors, c)) for c in product(sums)))
 
     def abs_fmt(self):
         return "*".join((f.abs_fmt() for f in self.factors))
