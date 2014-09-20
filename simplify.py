@@ -85,7 +85,7 @@ class Product(Expr):
     def power_factors(self):
         powers = tuple(f for f in self.factors if type(f) is Power)
         exponent = reduce(add, (p.exponent for p in powers), 0)
-        return Power(exponent)
+        return Power(exponent) if exponent else None
 
     def constant_factor(self):
         constants = (f for f in self.factors if type(f) is Constant)
