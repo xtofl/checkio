@@ -24,6 +24,11 @@ class Constant(Expr):
     def simplify(self):
         return self
 
+    def __eq__(self, other):
+        if not type(other) is Constant:
+            return False
+        return self.value == other.value
+
 
 class Power(Expr):
     def __init__(self, exponent):
@@ -141,8 +146,12 @@ class TestSimplify(TestCase):
         self.assertSequenceEqual((Power(1),), Product(Power(1)).factors)
 
     def test_Product_PowerTerm(self):
-        self.assertEqual(Power(0), Product(Constant(5)).power_factors())
         self.assertEqual(Power(2), Product(Power(2)).power_factors())
+        self.assertEqual(Power(5), Product(Power(2), Power(3)).power_factors())
+
+    def test_Product_ConstantTerm(self):
+        self.assertEqual(Constant(5), Product(Constant(5)).constant_factor())
+        self.assertEqual(Constant(15), Product(Constant(5), Constant(3)).constant_factor())
 
     def test_Format(self):
         self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
@@ -156,15 +165,16 @@ class TestSimplify(TestCase):
         self.assertEqual(term1, term1)
 
 
-    def test_Simplification(self):
+    def test_Distributivity(self):
         term1 = Product(Constant(8), Power(5))
         term2 = Product(Constant(-2), Power(2))
         s = Sum(term1, term2)
         factor = Constant(5)
         product = Product(Constant(5), s) # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
         simplified = product.simplify()
-        self.assertEqual(Sum(Product(Constant(40), Power(5)), Product(Constant(-10), Power(2))),
-                         simplified)
+        self.longMessage = True
+        self.assertEqual(str(Sum(Product(Constant(40), Power(5)), Product(Constant(-10), Power(2)))),
+                         str(simplified))
 
     def _test_Given(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
