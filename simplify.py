@@ -78,18 +78,25 @@ class Product(Expr):
     def negative(self):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
-    def power_term(self):
+    def power_factors(self):
         powers = tuple(f for f in self.factors if type(f) is Power)
         exponent = reduce(add, (p.exponent for p in powers), 0)
         return Power(exponent)
 
-    def simplify(self):
+    def constant_factor(self):
         constants = (f for f in self.factors if type(f) is Constant)
-        sums = (f for f in self.factors if type(f) is Sum)
-
         constant = Constant(reduce(mul, (c.value for c in constants), 1)) if constants else None
-        simple_factors = (f for f in (constant, self.power_term()) if f)
+        return constant
 
+    def sum_factors(self):
+        return (f for f in self.factors if type(f) is Sum)
+
+    def simplify(self):
+        constant = self.constant_factor()
+
+        simple_factors = (f for f in (constant, self.power_factors()) if f)
+
+        sums = self.sum_factors()
         if not sums:
             return Product(simple_factors)
         else:
@@ -133,8 +140,8 @@ class TestSimplify(TestCase):
         self.assertSequenceEqual((Power(1),), Product(Power(1)).factors)
 
     def test_Product_PowerTerm(self):
-        self.assertEqual(Power(0), Product(Constant(5)).power_term())
-        self.assertEqual(Power(2), Product(Power(2)).power_term())
+        self.assertEqual(Power(0), Product(Constant(5)).power_factors())
+        self.assertEqual(Power(2), Product(Power(2)).power_factors())
 
     def test_Format(self):
         self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
