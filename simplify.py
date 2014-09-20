@@ -1,5 +1,5 @@
 from itertools import product, chain
-from operator import mul
+from operator import mul, add
 from functools import reduce
 from unittest import TestCase
 
@@ -38,6 +38,11 @@ class Power(Expr):
     def simplify(self):
         return self
 
+    def __eq__(self, other):
+        if not type(other) is Power:
+            return False
+        return self.exponent == other.exponent
+
 
 class Sum(Expr):
     def __init__(self, *terms):
@@ -73,14 +78,17 @@ class Product(Expr):
     def negative(self):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
+    def power_term(self):
+        powers = tuple(f for f in self.factors if type(f) is Power)
+        exponent = reduce(add, (p.exponent for p in powers), 0)
+        return Power(exponent)
+
     def simplify(self):
         constants = (f for f in self.factors if type(f) is Constant)
-        powers = (f for f in self.factors if type(f) is Power)
         sums = (f for f in self.factors if type(f) is Sum)
 
         constant = Constant(reduce(mul, (c.value for c in constants), 1)) if constants else None
-        power = Power(reduce(sum, (p.exponent for p in powers), 0)) if powers else None
-        simple_factors = (f for f in (constant, power) if f)
+        simple_factors = (f for f in (constant, self.power_term()) if f)
 
         if not sums:
             return Product(simple_factors)
@@ -120,6 +128,13 @@ class TestSimplify(TestCase):
 
     def test_Product(self):
         self.assertEqual(True, Product(Constant(-1), Constant(1)).negative())
+
+        self.assertEqual(1, len(Product(Power(1)).factors))
+        self.assertSequenceEqual((Power(1),), Product(Power(1)).factors)
+
+    def test_Product_PowerTerm(self):
+        self.assertEqual(Power(0), Product(Constant(5)).power_term())
+        self.assertEqual(Power(2), Product(Power(2)).power_term())
 
     def test_Format(self):
         self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
