@@ -74,6 +74,8 @@ class Sum(Expr):
             return False
         return self.terms == other.terms
 
+def filter_type(t, it):
+    return (i for i in it if type(it) is t)
 
 class Product(Expr):
     def __init__(self, *factors):
@@ -83,7 +85,7 @@ class Product(Expr):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
     def power_factors(self):
-        powers = tuple(f for f in self.factors if type(f) is Power)
+        powers = tuple(filter_type(Power, self.factors))
         exponent = reduce(add, (p.exponent for p in powers), 0)
         return Power(exponent) if exponent else None
 
@@ -96,22 +98,35 @@ class Product(Expr):
         return (f for f in self.factors if type(f) is Sum)
 
     def simplify(self):
+
+        simplified_products = (f.simplify() for f in self.factors if type(f) is Product)
+
         constant = self.constant_factor()
+        constant = reduce(mul, (c.value for c in simplified_products if type(c) is Constant), constant.value)
 
+        powers = self.power_factors()
+
+        sums = list(chain(self.sum_factors(), (s for s in simplified_products if type(s) is Sum)))
         simple_factors = (f for f in (constant, self.power_factors()) if f)
-
-        sums = self.sum_factors()
         if not sums:
-            return Product(simple_factors)
+            if not powers:
+                return Constant(constant)
+            return Product(*simple_factors)
         else:
-            distributed = (Product(*chain(simple_factors, c)) for c in product(sums))
-            return Sum(*distributed)
+            distributed = reduce(Product.distribute, (s.terms for s in sums), Product(*simple_factors))
+            return Sum(distributed)
+
+    def simple_factors(self):
+        return tuple(f for f in (self.constant_factor(), self.power_factors()) if f)
+
+    def distribute(self, terms):
+        return Sum(*[Product(*(self.simple_factors() + (t,))) for t in terms])
 
     def abs_fmt(self):
         return "*".join((f.abs_fmt() for f in self.factors))
 
     def __repr__(self):
-        return "Product({})".format(tuple(repr(f) for f in self.factors))
+        return "Product({})".format(", ".join(repr(f) for f in self.factors))
 
     def __eq__(self, other):
         if other is self:

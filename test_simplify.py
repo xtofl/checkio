@@ -15,10 +15,17 @@ class TestSimplify(TestCase):
     def test_Product_PowerTerm(self):
         self.assertEqual(Power(2), Product(Power(2)).power_factors())
         self.assertEqual(Power(5), Product(Power(2), Power(3)).power_factors())
+        self.assertEqual(None, Product(Power(2), Power(-2)).power_factors())
 
     def test_Product_ConstantTerm(self):
         self.assertEqual(Constant(5), Product(Constant(5)).constant_factor())
         self.assertEqual(Constant(15), Product(Constant(5), Constant(3)).constant_factor())
+
+    def test_sum_factors(self):
+        c1, c2, c3 = Constant(1), Constant(2), Constant(3)
+        s, t = Sum(c1, c2), Sum(c2, c3)
+        self.assertSequenceEqual((s, t), tuple(Product(s, t).sum_factors()))
+        self.assertSequenceEqual((s, t), tuple(Product(s, t, Constant(1)).sum_factors()))
 
     def test_Format(self):
         self.assertEqual("1+2", Sum(Constant(1), Constant(2)).fmt())
@@ -31,8 +38,18 @@ class TestSimplify(TestCase):
         self.assertEqual("8*x**5-2*x**2", Sum(term1, term2).fmt())
         self.assertEqual(term1, term1)
 
+    def test_ProductOfProducts(self):
+        p = Product
+        self.assertEqual(Constant(10), p(Constant(2), p(Constant(5))).simplify())
+        self.assertEqual(Constant(10), p(p(Constant(5)), Constant(2)).simplify())
 
     def test_Distributivity(self):
+
+        c = Constant
+        p = Product
+        prod = p(c(1))
+        self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1)).distribute((c(2), c(3))))
+
         term1 = Product(Constant(8), Power(5))
         term2 = Product(Constant(-2), Power(2))
         s = Sum(term1, term2)
