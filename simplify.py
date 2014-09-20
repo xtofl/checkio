@@ -100,7 +100,8 @@ class Product(Expr):
         if not sums:
             return Product(simple_factors)
         else:
-            return Sum(*(Product(*chain(simple_factors, c)) for c in product(sums)))
+            distributed = (Product(*chain(simple_factors, c)) for c in product(sums))
+            return Sum(*distributed)
 
     def abs_fmt(self):
         return "*".join((f.abs_fmt() for f in self.factors))
