@@ -97,6 +97,7 @@ class Product(Expr):
     def sum_factors(self):
         return (f for f in self.factors if type(f) is Sum)
 
+
     def simplify(self):
 
         simplified_products = (f.simplify() for f in self.factors if type(f) is Product)
@@ -107,14 +108,18 @@ class Product(Expr):
         powers = self.power_factors()
 
         sums = list(chain(self.sum_factors(), (s for s in simplified_products if type(s) is Sum)))
-        simple_factors = (f for f in (constant, self.power_factors()) if f)
+        simple_factors = [f for f in (Constant(constant), self.power_factors()) if f]
         if not sums:
             if not powers:
                 return Constant(constant)
             return Product(*simple_factors)
         else:
-            distributed = reduce(Product.distribute, (s.terms for s in sums), Product(*simple_factors))
-            return Sum(distributed)
+            terms_combined = product(*[s.terms for s in sums])
+            combis = [Product(
+                        *list(
+                            chain(simple_factors, c)))
+                      for c in terms_combined]
+            return Sum(*combis)
 
     def simple_factors(self):
         return tuple(f for f in (self.constant_factor(), self.power_factors()) if f)

@@ -44,10 +44,13 @@ class TestSimplify(TestCase):
         self.assertEqual(Constant(10), p(p(Constant(5)), Constant(2)).simplify())
 
     def test_Distributivity(self):
-
         c = Constant
         p = Product
+        s = Sum
+        pw = Power
         prod = p(c(1))
+        # 1 * 2 + 1 * 3 <-- 1 * (2 + 3)
+        self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1), s(c(2), c(3))).simplify())
         self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1)).distribute((c(2), c(3))))
 
         term1 = Product(Constant(8), Power(5))
@@ -55,12 +58,31 @@ class TestSimplify(TestCase):
         s = Sum(term1, term2)
         factor = Constant(5)
         product = Product(Constant(5), s) # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
-        simplified = product.simplify()
         self.longMessage = True
-        self.assertEqual(str(Sum(Product(Constant(40), Power(5)), Product(Constant(-10), Power(2)))),
-                         str(simplified))
+        self.assertEqual(str(Sum(p(c(40), pw(5)), p(c(-10), pw(2)))),
+                         str(product.simplify()))
 
-    def _test_Given(self):
+    def test_Associativity(self):
+        # 1 * (2 * 3) --> 1 * 2 * 3
+        # (1 * 2 ) * 3 --> 1 * 2 * 3
+        pass
+
+    def test_GivenExpressions(self):
+        p = Product
+        s = Sum
+        c = Constant
+        pw = Power
+        #"(x-1)*(x+1)"
+        self.assertEqual("x**2-1", p(s(pw(1), c(-1)), s(pw(1), c(1))).simplify().fmt())
+        self.assertEqual("x**2+2*x+1", simplify("(x+1)*(x+1)"))
+        self.assertEqual("x**2+6*x", simplify("(x+3)*x*2-x*x"))
+        self.assertEqual("x**3+x**2+x", simplify("x+x*x+x*x*x"))
+        self.assertEqual("x**4+3*x+6", simplify("(2*x+3)*2-x+x*x*x*x"))
+        self.assertEqual("0", simplify("x*x-(x-1)*(x+1)-1"))
+        self.assertEqual( "-x", simplify("5-5-x"))
+        self.assertEqual("-1", simplify("x*x*x-x*x*x-1"))
+
+    def _test_GivenStrings(self):
         self.assertEqual("x**2-1", simplify("(x-1)*(x+1)"))
         self.assertEqual("x**2+2*x+1", simplify("(x+1)*(x+1)"))
         self.assertEqual("x**2+6*x", simplify("(x+3)*x*2-x*x"))
