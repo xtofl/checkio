@@ -59,7 +59,11 @@ class Sum(Expr):
                    for t in self.terms[1:]])
 
     def simplify(self):
-        return reduce(lambda lst, t: lst+(t,), (t.simplify() for t in self.terms))
+        return Sum(
+            *list(
+                reduce(lambda lst, t: lst+(t,), (t.simplify() for t in self.terms), tuple())
+            )
+        )
 
     def abs_fmt(self):
         return "+".join((f.abs_fmt() for f in self.terms))
@@ -119,7 +123,7 @@ class Product(Expr):
                         *list(
                             chain(simple_factors, c)))
                       for c in terms_combined]
-            return Sum(*combis)
+            return Sum(*combis).simplify()
 
     def simple_factors(self):
         return tuple(f for f in (self.constant_factor(), self.power_factors()) if f)

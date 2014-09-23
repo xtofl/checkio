@@ -49,8 +49,8 @@ class TestSimplify(TestCase):
         s = Sum
         pw = Power
         prod = p(c(1))
-        # 1 * 2 + 1 * 3 <-- 1 * (2 + 3)
-        self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1), s(c(2), c(3))).simplify())
+        # x * 2 + x * 3 <-- x * (2 + 3)
+        self.assertEqual(Sum(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).simplify())
         self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1)).distribute((c(2), c(3))))
 
         term1 = Product(Constant(8), Power(5))
@@ -61,6 +61,15 @@ class TestSimplify(TestCase):
         self.longMessage = True
         self.assertEqual(str(Sum(p(c(40), pw(5)), p(c(-10), pw(2)))),
                          str(product.simplify()))
+
+    def test_Sum(self):
+        class X:
+            def __init__(self, simplified):
+                self.simplified = simplified
+            def simplify(self):
+                return self.simplified
+        self.assertEqual(Sum(1), Sum(X(1)).simplify())
+        self.assertEqual(Sum(1, 2, 3), Sum(X(1), X(2), X(3)).simplify())
 
     def test_Associativity(self):
         # 1 * (2 * 3) --> 1 * 2 * 3
