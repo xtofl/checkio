@@ -1,6 +1,7 @@
 from itertools import product, chain
 from operator import mul, add
 from functools import reduce
+from Onboard.pypredict.lm_wrapper import filter_tokens
 
 __mission__ = """http://www.checkio.org/mission/simplification/share/cd052a5416a6e8b459e74b63451b9c30/"""
 
@@ -48,6 +49,13 @@ class Power(Expr):
         return self.exponent == other.exponent
 
 
+def filter_type(t, it):
+    return (i for i in it if type(it) is t)
+
+def filter_type_not(t, it):
+    return (i for i in it if not type(it) is t)
+
+
 class Sum(Expr):
     def __init__(self, *terms):
         self.terms = tuple(terms)
@@ -59,11 +67,13 @@ class Sum(Expr):
                    for t in self.terms[1:]])
 
     def simplify(self):
-        return Sum(
-            *list(
-                reduce(lambda lst, t: lst+(t,), (t.simplify() for t in self.terms), tuple())
-            )
-        )
+        simplified_terms = [t.simplify() for t in self.terms]
+
+        sum_terms = reduce(lambda l, t: l + t,
+                           list(t.terms for t in filter_type(Sum, simplified_terms)),
+                           list())
+        other_terms = list(filter_type_not(Sum, simplified_terms))
+        return Sum(*(sum_terms + other_terms))
 
     def abs_fmt(self):
         return "+".join((f.abs_fmt() for f in self.terms))
@@ -78,8 +88,12 @@ class Sum(Expr):
             return False
         return self.terms == other.terms
 
-def filter_type(t, it):
-    return (i for i in it if type(it) is t)
+def partition(predicate, it):
+    ins, outs = [], []
+    for i in it:
+        (ins if predicate(i) else outs).append(i)
+
+    return (ins, outs)
 
 class Product(Expr):
     def __init__(self, *factors):
@@ -100,6 +114,10 @@ class Product(Expr):
 
     def sum_factors(self):
         return (f for f in self.factors if type(f) is Sum)
+
+    def apply_associativity(self):
+        sub_products, non_products = partition(lambda f: type(f) is Product, self.factors)
+        new_factors = append_all(p.factors for p in sub_products)
 
 
     def simplify(self):

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from simplify import Product, Constant, Power, Sum, simplify
+from simplify import Product, Constant, Power, Sum, simplify, partition
 
 __author__ = 'xtofl'
 
@@ -67,12 +67,24 @@ class TestSimplify(TestCase):
             def __init__(self, simplified):
                 self.simplified = simplified
             def simplify(self):
-                return self.simplified
-        self.assertEqual(Sum(1), Sum(X(1)).simplify())
-        self.assertEqual(Sum(1, 2, 3), Sum(X(1), X(2), X(3)).simplify())
+                return Constant(self.simplified)
 
-    def test_Associativity(self):
+        c1, c2, c3 = [Constant(i) for i in [1, 2, 3]]
+        self.assertEqual(Sum(c1), Sum(X(1)).simplify())
+        self.assertEqual(Sum(c1, c2, c3), Sum(X(1), X(2), X(3)).simplify())
+
+        self.assertEqual(Sum(c1, c2), Sum(Sum(c1), Sum(c2)).simplify())
+
+    def test_partition(self):
+        odd = lambda x: x%2 == 1
+        self.assertEqual([[], []], [list(p) for p in partition(odd, [])])
+        self.assertEqual([[1], [0]], [list(p) for p in partition(odd, [0, 1])])
+
+        
+
+    def test_Product_Associativity(self):
         # 1 * (2 * 3) --> 1 * 2 * 3
+        self.assertEqual(Product(1, 2, 3), Product(1, Product(2, 3)).apply_associativity())
         # (1 * 2 ) * 3 --> 1 * 2 * 3
         pass
 
