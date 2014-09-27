@@ -85,6 +85,8 @@ class TestSimplify(TestCase):
         self.assertEqual(Product(1, 2, 3), Product(1, Product(2, 3)).apply_associativity())
         # (1 * 2 ) * 3 --> 1 * 2 * 3
         self.assertEqual(Product(1, 2, 3), Product(Product(1, 2), 3).apply_associativity())
+        # (1 * (2 * (3 * 4))) --> 1 * 2 * 3 * 4
+        self.assertEqual(Product(1, 2, 3, 4), Product(1, Product(2, Product(3, 4))).apply_associativity())
 
     def test_GivenExpressions(self):
         p = Product
