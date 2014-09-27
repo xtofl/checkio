@@ -116,9 +116,9 @@ class Product(Expr):
         return (f for f in self.factors if type(f) is Sum)
 
     def apply_associativity(self):
-        sub_products, non_products = partition(lambda f: type(f) is Product, self.factors)
-        new_factors = append_all(p.factors for p in sub_products)
-
+        products, simple_factors = partition(lambda f: type(f) is Product, self.factors)
+        extra_factors = chain(*(p.factors for p in products))
+        return Product(*chain(simple_factors, extra_factors))
 
     def simplify(self):
 

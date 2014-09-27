@@ -80,13 +80,11 @@ class TestSimplify(TestCase):
         self.assertEqual([[], []], [list(p) for p in partition(odd, [])])
         self.assertEqual([[1], [0]], [list(p) for p in partition(odd, [0, 1])])
 
-        
-
     def test_Product_Associativity(self):
         # 1 * (2 * 3) --> 1 * 2 * 3
         self.assertEqual(Product(1, 2, 3), Product(1, Product(2, 3)).apply_associativity())
         # (1 * 2 ) * 3 --> 1 * 2 * 3
-        pass
+        self.assertEqual(Product(1, 2, 3), Product(Product(1, 2), 3).apply_associativity())
 
     def test_GivenExpressions(self):
         p = Product
