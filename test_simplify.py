@@ -49,12 +49,12 @@ class TestSimplify(TestCase):
         s = Sum
         pw = Power
         # x * 2 + x * 3 <-- x * (2 + 3)
-        self.assertEqual(Sum(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).apply_distributivity())
+        self.assertEqual(s(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).apply_distributivity())
 
         # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
-        term1 = Product(Constant(8), Power(5))
-        term2 = Product(Constant(-2), Power(2))
-        product = Product(Constant(5), Sum(term1, term2))
+        term1 = p(c(8), pw(5))
+        term2 = p(c(-2), pw(2))
+        product = p(c(5), s(term1, term2))
         self.assertEqual(s(p(c(5), p(c(8), pw(5))),
                            p(c(5), p(c(-2), pw(2)))), product.apply_distributivity())
 
