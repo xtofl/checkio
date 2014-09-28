@@ -65,7 +65,16 @@ class TestSimplify(TestCase):
              p(c(5), p(c(-2), x(2)))),
            p(c(5), s(term1, term2)))
 
-    def test_Sum(self):
+    def test_sum_associativity(self):
+        def eq(expect, original):
+            self.assertEqual(set(expect.terms), set(original.apply_associativity().terms))
+
+        eq(s(1, 2, 3), s(1, s(2, 3)))
+        eq(s(1, 2, 3), s(s(1, 2), 3))
+        eq(s(1, 2, 3, 4), s(s(s(1, 2), 3), 4))
+
+
+    def after_associativity_test_Sum(self):
         class X:
             def __init__(self, simplified):
                 self.simplified = simplified

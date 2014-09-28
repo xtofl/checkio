@@ -66,6 +66,14 @@ class Sum(Expr):
                    ('-' if t.negative() else '+') + t.abs_fmt()
                    for t in self.terms[1:]])
 
+    def __split_terms(self, typeT):
+        return partition(lambda t: type(t) is typeT, self.terms)
+
+    def apply_associativity(self):
+        sums, simple_terms = self.__split_terms(Sum)
+        extra_terms = chain(*(t.apply_associativity().terms for t in sums))
+        return Sum(*chain(simple_terms, extra_terms))
+
     def simplify(self):
         simplified_terms = [t.simplify() for t in self.terms]
 
