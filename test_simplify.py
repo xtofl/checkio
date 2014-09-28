@@ -67,12 +67,19 @@ class TestSimplify(TestCase):
 
     def test_sum_associativity(self):
         def eq(expect, original):
-            self.assertEqual(set(expect.terms), set(original.apply_associativity().terms))
+            self.assertEqual(set(expect.terms),
+                             set(original.apply_associativity().terms))
 
         eq(s(1, 2, 3), s(1, s(2, 3)))
         eq(s(1, 2, 3), s(s(1, 2), 3))
         eq(s(1, 2, 3, 4), s(s(s(1, 2), 3), 4))
 
+    def test_sum_distributivity(self):
+        class X:
+            def apply_distributivity(self):
+                return s(1, 2, 3, 4)
+        d = X()
+        self.assertEqual(s(s(1, 2, 3, 4)), s(d).apply_distributivity())
 
     def after_associativity_test_Sum(self):
         class X:

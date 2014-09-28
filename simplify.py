@@ -74,6 +74,10 @@ class Sum(Expr):
         extra_terms = chain(*(t.apply_associativity().terms for t in sums))
         return Sum(*chain(simple_terms, extra_terms))
 
+    def apply_distributivity(self):
+        terms = [t.apply_distributivity() for t in self.terms]
+        return Sum(*terms)
+
     def simplify(self):
         simplified_terms = [t.simplify() for t in self.terms]
 
