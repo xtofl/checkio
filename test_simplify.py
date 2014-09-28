@@ -5,7 +5,7 @@ from simplify import \
     Power as x, \
     Sum as s, \
     simplify, \
-    partition
+    partition, partition_typed
 
 __author__ = 'xtofl'
 
@@ -91,6 +91,11 @@ class TestSimplify(TestCase):
         odd = lambda x: x%2 == 1
         self.assertEqual([[], []], [list(p) for p in partition(odd, [])])
         self.assertEqual([[1], [0]], [list(p) for p in partition(odd, [0, 1])])
+
+    def test_partition_typed(self):
+        self.assertEqual([[], []], [list(p) for p in partition_typed(int, [])])
+        self.assertEqual([[0], [1.0]], [list(p) for p in partition_typed(int, [0, 1.0])])
+
 
     def test_Product_Associativity(self):
         def eq(factors, expr):

@@ -103,6 +103,9 @@ def partition(predicate, it):
 
     return (ins, outs)
 
+def partition_typed(typeT, it):
+    return partition(lambda t: type(t) is typeT, it)
+
 class Product(Expr):
     def __init__(self, *factors):
         self.factors = tuple(factors)
