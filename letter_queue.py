@@ -4,12 +4,13 @@ from collections import deque
 def letter_queue(commands):
     q = deque()
     function = {
-        "PUSH": lambda ts: q.append(ts[0]),
+        "PUSH": lambda tokens: q.append(tokens[1]),
         "POP": lambda _: q.popleft() if q else None
     }
 
-    for tokens in (cmd.split() for cmd in commands):
-        function[tokens[0]](tokens[1:])
+    for cmd in commands:
+        tokens = cmd.split()
+        function[tokens[0]](tokens)
 
     return "".join(q)
 
