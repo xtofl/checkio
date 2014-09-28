@@ -33,7 +33,7 @@ def checkio(grid):
              [make_sliced((0, 0), down_right)] +
              [make_sliced((0, 2), down_left)]]])
 
-    for side in ["X", "O"]:
+    for side in "XO":
         if wins(side):
             return side
 
