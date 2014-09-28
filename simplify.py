@@ -124,7 +124,14 @@ class Product(Expr):
         return partition(lambda f: type(f) is typeT, self.factors)
 
     def apply_distributivity(self):
-        sums, simple_factors = partition(lambda f: type(f) is Sum, self.factors)
+        sums, simple_factors = self.__split_factors(Sum)
+        terms_combined = product(*[s.terms for s in sums])
+        combis = [Product(
+                    *list(
+                        chain(simple_factors, c)))
+                  for c in terms_combined]
+        return Sum(*combis)
+
 
     def simplify(self):
 
