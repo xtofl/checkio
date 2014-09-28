@@ -50,7 +50,7 @@ class TestSimplify(TestCase):
         pw = Power
         prod = p(c(1))
         # x * 2 + x * 3 <-- x * (2 + 3)
-        self.assertEqual(Sum(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).simplify())
+        self.assertEqual(Sum(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).apply_distributivity())
         self.assertEqual(Sum(p(c(1), c(2)), p(c(1), c(3))), p(c(1)).distribute((c(2), c(3))))
 
         term1 = Product(Constant(8), Power(5))
