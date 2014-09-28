@@ -48,15 +48,19 @@ class TestSimplify(TestCase):
         p = Product
         s = Sum
         pw = Power
+        def eq(expect, original):
+            self.assertEqual(expect, original.apply_distributivity())
+
         # x * 2 + x * 3 <-- x * (2 + 3)
-        self.assertEqual(s(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))).apply_distributivity())
+        eq(s(p(pw(1), c(2)), p(pw(1), c(3))), p(pw(1), s(c(2), c(3))))
 
         # 5 * (8x^5 - 2x^2) = 40x^5 -10x^2
         term1 = p(c(8), pw(5))
         term2 = p(c(-2), pw(2))
-        product = p(c(5), s(term1, term2))
-        self.assertEqual(s(p(c(5), p(c(8), pw(5))),
-                           p(c(5), p(c(-2), pw(2)))), product.apply_distributivity())
+
+        eq(s(p(c(5), p(c(8), pw(5))),
+             p(c(5), p(c(-2), pw(2)))),
+           p(c(5), s(term1, term2)))
 
     def test_Sum(self):
         class X:
