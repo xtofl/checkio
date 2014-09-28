@@ -117,7 +117,7 @@ class Product(Expr):
 
     def apply_associativity(self):
         products, simple_factors = partition(lambda f: type(f) is Product, self.factors)
-        extra_factors = chain(*(p.factors for p in products))
+        extra_factors = chain(*(p.apply_associativity().factors for p in products))
         return Product(*chain(simple_factors, extra_factors))
 
     def simplify(self):
