@@ -12,7 +12,7 @@ def checkio(expr):
         if c in closing_brackets.keys():
             expect_closing.append(closing_brackets[c])
         elif c in closing_brackets.values():
-            if c == expect_closing[-1]:
+            if expect_closing and c == expect_closing[-1]:
                 expect_closing.pop()
             else:
                 return False
@@ -33,3 +33,4 @@ class TestBrackets(TestCase):
         valid("[1+1]+(2*2)-{3/3}") == True
         invalid("(({[(((1)-2)+3)-3]/3}-3)") == False
         valid("2+3") == True
+        invalid("(((1+(1+1))))]")
