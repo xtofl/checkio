@@ -1,9 +1,20 @@
 from unittest import TestCase
 
+def add(point, inc):
+    return list(a + b for a, b in zip(point, inc))
+
+def horizontal(grid, start):
+    pass
+
 def checkio(grid):
     return False
 
 class Test(TestCase):
+
+    def test_point(self):
+        self.assertEqual([1], add([1], [0]))
+        self.assertEqual([1, 2, 3], add([1, 1, 1], [0, 1, 2]))
+
     def test_One(self):
         def checkTrue(grid):
             self.assertTrue(checkio(grid))
