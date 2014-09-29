@@ -2,17 +2,17 @@ from collections import deque
 
 
 def letter_queue(commands):
-    q = deque()
+    q = ""
     function = {
-        "PUSH": lambda tokens: q.append(tokens[1]),
-        "POP": lambda _: q.popleft() if q else None
+        "PUSH": lambda q, tokens: q + tokens[1],
+        "POP": lambda q, _: q[1:] if q else ""
     }
 
     for cmd in commands:
         tokens = cmd.split()
-        function[tokens[0]](tokens)
+        q = function[tokens[0]](q, tokens)
 
-    return "".join(q)
+    return q
 
 if __name__ == '__main__':
     #These "asserts" using only for self-checking and not necessary for auto-testing
