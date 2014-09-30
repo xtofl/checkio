@@ -31,7 +31,7 @@ def grid_equal_row(grid, start, increment):
     value = get(start)
     in_this_grid = in_grid(grid)
     same_grid_value = lambda p: in_this_grid(p) and get(p) == value
-    return len([grid[row][col] for row, col in point_range(start, increment, same_grid_value)])
+    return sum(1 for _ in point_range(start, increment, same_grid_value))
 
 
 left_right = (0, 1)
