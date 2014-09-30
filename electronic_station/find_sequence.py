@@ -31,7 +31,7 @@ def grid_equal_row(grid, start, increment):
     value = get(start)
     in_this_grid = in_grid(grid)
     same_grid_value = lambda p: in_this_grid(p) and get(p) == value
-    return [grid[row][col] for row, col in point_range(start, increment, same_grid_value)]
+    return len([grid[row][col] for row, col in point_range(start, increment, same_grid_value)])
 
 
 left_right = (0, 1)
@@ -46,7 +46,7 @@ def grid_points(grid):
 def checkio(grid):
     limit = 4
 
-    return any((len(grid_equal_row(grid, start, direction)) >= limit)
+    return any((grid_equal_row(grid, start, direction) >= limit)
                for start in grid_points(grid)
                for direction in [left_right, top_down, down_right, down_left])
 
@@ -71,10 +71,10 @@ class Test(TestCase):
         self.assertEqual(1, g((0, 0)))
         self.assertEqual(2, g((0, 1)))
         self.assertEqual(3, g((0, 2)))
-        self.assertEqual([1, 1], grid_equal_row([[1, 1]], (0, 0), (0, 1)))
-        self.assertEqual([1, 1], grid_equal_row([[1, 0], [1, 0]], (0, 0), (1, 0)))
-        self.assertEqual([0], grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
-        self.assertEqual([0, 0], grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
+        self.assertEqual(2, grid_equal_row([[1, 1]], (0, 0), (0, 1)))
+        self.assertEqual(2, grid_equal_row([[1, 0], [1, 0]], (0, 0), (1, 0)))
+        self.assertEqual(1, grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
+        self.assertEqual(2, grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
         grid = [
             [2, 1, 1, 6, 1],
             [1, 3, 2, 1, 1],
@@ -82,8 +82,8 @@ class Test(TestCase):
             [5, 5, 5, 5, 5],
             [1, 1, 3, 1, 1]
         ]
-        self.assertEqual([5, 5, 5, 5, 5], grid_equal_row(grid, (3, 0), (0, 1)))
-        self.assertEqual([1, 1, 1], grid_equal_row(grid, (0, 4), (1, 0)))
+        self.assertEqual(5, grid_equal_row(grid, (3, 0), (0, 1)))
+        self.assertEqual(3, grid_equal_row(grid, (0, 4), (1, 0)))
 
     def test_One(self):
         def checkTrue(grid):
