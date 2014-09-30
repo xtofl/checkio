@@ -6,6 +6,19 @@ def add(point, inc):
 def horizontal(grid, start):
     pass
 
+def point_range(start, increment, condition):
+    while condition(start):
+        yield start
+        start = add(start, increment)
+
+def in_grid(grid):
+    def f(point):
+        return point[0] < len(grid) and point[1] < len(grid[point[0]])
+    return f
+
+def grid_slice(grid, start, increment):
+    return [grid[row][col] for row, col in point_range(start, increment, in_grid(grid))]
+
 def checkio(grid):
     return False
 
@@ -15,7 +28,16 @@ class Test(TestCase):
         self.assertEqual([1], add([1], [0]))
         self.assertEqual([1, 2, 3], add([1, 1, 1], [0, 1, 2]))
 
-    def test_One(self):
+    def test_slice(self):
+        width = 4
+        height = 5
+        grid = [range(i*width, i*width+width) for i in range(height)]
+        self.assertEqual([0, 1, 2, 3], grid_slice(grid, (0, 0), (0, 1)))
+        self.assertEqual([0, 4, 8, 12, 16], grid_slice(grid, (0, 0), (1, 0)))
+        self.assertEqual([4, 8, 12, 16], grid_slice(grid, (1, 0), (1, 0)))
+        self.assertEqual([0, 5, 10, 15], grid_slice(grid, (0, 0), (1, 1)))
+
+    def _test_One(self):
         def checkTrue(grid):
             self.assertTrue(checkio(grid))
         def checkFalse(grid):
