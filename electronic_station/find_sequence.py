@@ -19,6 +19,16 @@ def in_grid(grid):
 def grid_slice(grid, start, increment):
     return [grid[row][col] for row, col in point_range(start, increment, in_grid(grid))]
 
+
+def grid_getter(grid):
+    return lambda point: grid[point[0]][point[1]]
+
+
+def grid_equal_row(grid, start, increment):
+    value = grid_getter(grid)(start)
+    return [grid[row][col] for row, col in point_range(start, increment, lambda p: in_grid(grid)(p) and grid_getter(grid)(p) == value)]
+
+
 def checkio(grid):
     return False
 
@@ -36,6 +46,16 @@ class Test(TestCase):
         self.assertEqual([0, 4, 8, 12, 16], grid_slice(grid, (0, 0), (1, 0)))
         self.assertEqual([4, 8, 12, 16], grid_slice(grid, (1, 0), (1, 0)))
         self.assertEqual([0, 5, 10, 15], grid_slice(grid, (0, 0), (1, 1)))
+
+    def test_equal_row(self):
+        g = grid_getter([[1, 2, 3]])
+        self.assertEqual(1, g((0, 0)))
+        self.assertEqual(2, g((0, 1)))
+        self.assertEqual(3, g((0, 2)))
+        self.assertEqual([1, 1], grid_equal_row([[1, 1]], (0, 0), (0, 1)))
+        self.assertEqual([1, 1], grid_equal_row([[1, 0], [1, 0]], (0, 0), (1, 0)))
+        self.assertEqual([0], grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
+        self.assertEqual([0, 0], grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
 
     def _test_One(self):
         def checkTrue(grid):
