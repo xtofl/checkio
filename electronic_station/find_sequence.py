@@ -28,9 +28,26 @@ def grid_equal_row(grid, start, increment):
     value = grid_getter(grid)(start)
     return [grid[row][col] for row, col in point_range(start, increment, lambda p: in_grid(grid)(p) and grid_getter(grid)(p) == value)]
 
+left_right = (0, 1)
+top_down = (1, 0)
+downright = (1, 1)
+downleft = (1, -1)
+
+def grid_top(grid):
+    return [(i, 0) for i in range(len(grid[0]))]
+
+def grid_left(grid):
+    return [(0, i) for i in range(len(grid))]
+
+def grid_right(grid):
+    return [(len(grid[0])-1, i) for i in range(len(grid))]
 
 def checkio(grid):
-    return False
+    limit = 4
+    directions = [left_right, top_down, downleft, downright]
+    start_points = grid_top(grid) + grid_left(grid) + grid_right(grid)
+    return any((len(grid_equal_row(grid, start, direction)) > limit) for start in start_points for direction in directions)
+
 
 class Test(TestCase):
 
@@ -57,7 +74,7 @@ class Test(TestCase):
         self.assertEqual([0], grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
         self.assertEqual([0, 0], grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
 
-    def _test_One(self):
+    def test_One(self):
         def checkTrue(grid):
             self.assertTrue(checkio(grid))
         def checkFalse(grid):
