@@ -16,6 +16,7 @@ def in_grid(grid):
         return point[0] < len(grid) and point[1] < len(grid[point[0]])
     return f
 
+
 def grid_slice(grid, start, increment):
     return [grid[row][col] for row, col in point_range(start, increment, in_grid(grid))]
 
@@ -25,28 +26,29 @@ def grid_getter(grid):
 
 
 def grid_equal_row(grid, start, increment):
-    value = grid_getter(grid)(start)
-    return [grid[row][col] for row, col in point_range(start, increment, lambda p: in_grid(grid)(p) and grid_getter(grid)(p) == value)]
+    get = grid_getter(grid)
+
+    value = get(start)
+    in_this_grid = in_grid(grid)
+    same_grid_value = lambda p: in_this_grid(p) and get(p) == value
+    return [grid[row][col] for row, col in point_range(start, increment, same_grid_value)]
+
 
 left_right = (0, 1)
 top_down = (1, 0)
-downright = (1, 1)
-downleft = (1, -1)
+down_right = (1, 1)
+down_left = (1, -1)
 
-def grid_top(grid):
-    return [(i, 0) for i in range(len(grid[0]))]
+def grid_points(grid):
+    return [(i, j) for i in range(len(grid[0])) for j in range(len(grid))]
 
-def grid_left(grid):
-    return [(0, i) for i in range(len(grid))]
-
-def grid_right(grid):
-    return [(len(grid[0])-1, i) for i in range(len(grid))]
 
 def checkio(grid):
     limit = 4
-    directions = [left_right, top_down, downleft, downright]
-    start_points = grid_top(grid) + grid_left(grid) + grid_right(grid)
-    return any((len(grid_equal_row(grid, start, direction)) >= limit) for start in start_points for direction in directions)
+
+    return any((len(grid_equal_row(grid, start, direction)) >= limit)
+               for start in grid_points(grid)
+               for direction in [left_right, top_down, down_right, down_left])
 
 
 class Test(TestCase):
@@ -73,6 +75,15 @@ class Test(TestCase):
         self.assertEqual([1, 1], grid_equal_row([[1, 0], [1, 0]], (0, 0), (1, 0)))
         self.assertEqual([0], grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
         self.assertEqual([0, 0], grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
+        grid = [
+            [2, 1, 1, 6, 1],
+            [1, 3, 2, 1, 1],
+            [4, 1, 1, 3, 1],
+            [5, 5, 5, 5, 5],
+            [1, 1, 3, 1, 1]
+        ]
+        self.assertEqual([5, 5, 5, 5, 5], grid_equal_row(grid, (3, 0), (0, 1)))
+        self.assertEqual([1, 1, 1], grid_equal_row(grid, (0, 4), (1, 0)))
 
     def test_One(self):
         def checkTrue(grid):
