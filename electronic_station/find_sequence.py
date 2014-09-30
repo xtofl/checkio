@@ -1,6 +1,3 @@
-from unittest import TestCase
-
-
 def add(point, inc):
     return list(a + b for a, b in zip(point, inc))
 
@@ -51,6 +48,9 @@ def checkio(grid):
     return any((grid_equal_row(grid, start, direction) >= limit)
                for start in grid_points(grid)
                for direction in [left_right, top_down, down_right, down_left])
+
+
+from unittest import TestCase
 
 
 class Test(TestCase):
