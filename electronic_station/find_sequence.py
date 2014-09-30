@@ -15,9 +15,7 @@ def point_count(start, increment, condition):
     return sum(1 for _ in point_range(start, increment, condition))
 
 def in_grid(grid):
-    def f(point):
-        return point[0] < len(grid) and point[1] < len(grid[point[0]])
-    return f
+    return lambda point: point[0] < len(grid) and point[1] < len(grid[point[0]])
 
 
 def grid_slice(grid, start, increment):
