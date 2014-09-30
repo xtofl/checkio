@@ -46,7 +46,7 @@ def checkio(grid):
     limit = 4
     directions = [left_right, top_down, downleft, downright]
     start_points = grid_top(grid) + grid_left(grid) + grid_right(grid)
-    return any((len(grid_equal_row(grid, start, direction)) > limit) for start in start_points for direction in directions)
+    return any((len(grid_equal_row(grid, start, direction)) >= limit) for start in start_points for direction in directions)
 
 
 class Test(TestCase):
@@ -84,20 +84,20 @@ class Test(TestCase):
             [1, 1, 4, 1],
             [1, 3, 1, 6],
             [1, 7, 2, 5]
-        ]) == True
+        ])
         checkFalse([
             [7, 1, 4, 1],
             [1, 2, 5, 2],
             [3, 4, 1, 3],
             [1, 1, 8, 1]
-        ]) == False
+        ])
         checkTrue([
             [2, 1, 1, 6, 1],
             [1, 3, 2, 1, 1],
             [4, 1, 1, 3, 1],
             [5, 5, 5, 5, 5],
             [1, 1, 3, 1, 1]
-        ]) == True
+        ])
         checkTrue([
             [7, 1, 1, 8, 1, 1],
             [1, 1, 7, 3, 1, 5],
@@ -105,4 +105,4 @@ class Test(TestCase):
             [1, 1, 1, 5, 1, 4],
             [4, 6, 5, 1, 3, 1],
             [1, 1, 9, 1, 2, 1]
-            ]) == True
+            ])
