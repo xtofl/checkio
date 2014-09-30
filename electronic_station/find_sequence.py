@@ -1,3 +1,11 @@
+def checkio(grid):
+    limit = 4
+
+    return any((contiguous_slice_length(grid, start, direction) >= limit)
+               for start in grid_points(grid)
+               for direction in [left_right, top_down, down_right, down_left])
+
+
 def add(point, inc):
     return list(a + b for a, b in zip(point, inc))
 
@@ -40,14 +48,6 @@ down_left = (1, -1)
 
 def grid_points(grid):
     return [(i, j) for i in range(len(grid[0])) for j in range(len(grid))]
-
-
-def checkio(grid):
-    limit = 4
-
-    return any((contiguous_slice_length(grid, start, direction) >= limit)
-               for start in grid_points(grid)
-               for direction in [left_right, top_down, down_right, down_left])
 
 
 from unittest import TestCase
