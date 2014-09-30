@@ -1,18 +1,19 @@
 from unittest import TestCase
 
+
 def add(point, inc):
     return list(a + b for a, b in zip(point, inc))
 
-def horizontal(grid, start):
-    pass
 
 def point_range(start, increment, condition):
     while condition(start):
         yield start
         start = add(start, increment)
 
+
 def point_count(start, increment, condition):
     return sum(1 for _ in point_range(start, increment, condition))
+
 
 def in_grid(grid):
     return lambda point: point[0] < len(grid) and point[1] < len(grid[point[0]])
