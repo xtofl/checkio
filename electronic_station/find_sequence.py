@@ -11,6 +11,9 @@ def point_range(start, increment, condition):
         yield start
         start = add(start, increment)
 
+def point_count(start, increment, condition):
+    return sum(1 for _ in point_range(start, increment, condition))
+
 def in_grid(grid):
     def f(point):
         return point[0] < len(grid) and point[1] < len(grid[point[0]])
@@ -31,7 +34,7 @@ def grid_equal_row(grid, start, increment):
     value = get(start)
     in_this_grid = in_grid(grid)
     same_grid_value = lambda p: in_this_grid(p) and get(p) == value
-    return sum(1 for _ in point_range(start, increment, same_grid_value))
+    return point_count(start, increment, same_grid_value)
 
 
 left_right = (0, 1)
