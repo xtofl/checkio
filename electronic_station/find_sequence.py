@@ -24,7 +24,7 @@ def grid_getter(grid):
     return lambda point: grid[point[0]][point[1]]
 
 
-def grid_equal_row(grid, start, increment):
+def contiguous_slice_length(grid, start, increment):
     get = grid_getter(grid)
 
     value = get(start)
@@ -45,7 +45,7 @@ def grid_points(grid):
 def checkio(grid):
     limit = 4
 
-    return any((grid_equal_row(grid, start, direction) >= limit)
+    return any((contiguous_slice_length(grid, start, direction) >= limit)
                for start in grid_points(grid)
                for direction in [left_right, top_down, down_right, down_left])
 
@@ -73,10 +73,10 @@ class Test(TestCase):
         self.assertEqual(1, g((0, 0)))
         self.assertEqual(2, g((0, 1)))
         self.assertEqual(3, g((0, 2)))
-        self.assertEqual(2, grid_equal_row([[1, 1]], (0, 0), (0, 1)))
-        self.assertEqual(2, grid_equal_row([[1, 0], [1, 0]], (0, 0), (1, 0)))
-        self.assertEqual(1, grid_equal_row([[0, 1], [2, 3]], (0, 0), (1, 1)))
-        self.assertEqual(2, grid_equal_row([[0, 1], [2, 0]], (0, 0), (1, 1)))
+        self.assertEqual(2, contiguous_slice_length([[1, 1]], (0, 0), (0, 1)))
+        self.assertEqual(2, contiguous_slice_length([[1, 0], [1, 0]], (0, 0), (1, 0)))
+        self.assertEqual(1, contiguous_slice_length([[0, 1], [2, 3]], (0, 0), (1, 1)))
+        self.assertEqual(2, contiguous_slice_length([[0, 1], [2, 0]], (0, 0), (1, 1)))
         grid = [
             [2, 1, 1, 6, 1],
             [1, 3, 2, 1, 1],
@@ -84,8 +84,8 @@ class Test(TestCase):
             [5, 5, 5, 5, 5],
             [1, 1, 3, 1, 1]
         ]
-        self.assertEqual(5, grid_equal_row(grid, (3, 0), (0, 1)))
-        self.assertEqual(3, grid_equal_row(grid, (0, 4), (1, 0)))
+        self.assertEqual(5, contiguous_slice_length(grid, (3, 0), (0, 1)))
+        self.assertEqual(3, contiguous_slice_length(grid, (0, 4), (1, 0)))
 
     def test_One(self):
         def checkTrue(grid):
