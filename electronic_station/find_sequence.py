@@ -21,7 +21,11 @@ def point_count(start, increment, condition):
 
 
 def in_grid(grid):
-    return lambda point: point[0] < len(grid) and point[1] < len(grid[point[0]])
+    return lambda point: all(
+        p >= 0 for p in point) \
+        and point[0] < len(grid) \
+        and point[1] < len(grid[point[0]]
+    )
 
 
 def grid_slice(grid, start, increment):
@@ -67,6 +71,16 @@ class Test(TestCase):
         self.assertEqual([0, 4, 8, 12, 16], grid_slice(grid, (0, 0), (1, 0)))
         self.assertEqual([4, 8, 12, 16], grid_slice(grid, (1, 0), (1, 0)))
         self.assertEqual([0, 5, 10, 15], grid_slice(grid, (0, 0), (1, 1)))
+
+    def test_in_grid(self):
+        width = 4
+        height = 5
+        grid = [range(i*width, i*width+width) for i in range(height)]
+        self.assertTrue(in_grid(grid)((0, 0)))
+        self.assertTrue(in_grid(grid)((0, 3)))
+        self.assertTrue(in_grid(grid)((4, 0)))
+        self.assertTrue(in_grid(grid)((4, 3)))
+        self.assertFalse(in_grid(grid)((-1, 0)))
 
     def test_equal_row(self):
         g = grid_getter([[1, 2, 3]])
