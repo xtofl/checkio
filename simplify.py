@@ -50,10 +50,10 @@ class Power(Expr):
 
 
 def filter_type(t, it):
-    return (i for i in it if type(it) is t)
+    return (i for i in it if isinstance(it, t))
 
 def filter_type_not(t, it):
-    return (i for i in it if not type(it) is t)
+    return (i for i in it if not isinstance(it, t))
 
 
 class Sum(Expr):
