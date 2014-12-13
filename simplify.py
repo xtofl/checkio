@@ -119,7 +119,7 @@ class Product(Expr):
 
     def power_factors(self):
         powers = tuple(filter_type(Power, self.factors))
-        exponent = reduce(add, (p.exponent for p in powers), 0)
+        exponent = sum(p.exponent for p in powers)
         return Power(exponent) if exponent else None
 
     def constant_factor(self):
