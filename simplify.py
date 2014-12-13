@@ -118,7 +118,7 @@ class Product(Expr):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
     def power_factors(self):
-        powers = tuple(filter_type(Power, self.factors))
+        powers = tuple(f for f in self.factors if isinstance(f, Power))
         exponent = sum(p.exponent for p in powers)
         return Power(exponent) if exponent else None
 
