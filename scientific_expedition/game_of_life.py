@@ -105,6 +105,19 @@ class TestGOL(TestCase):
             (0, 0, 1, 1, 1),
             (0, 0, 0, 1, 0)
         ))
+        self.assertEqual(next_state(next_state(m)), (
+            (0, 0, 0, 0, 0),
+            (0, 0, 1, 0, 1),
+            (0, 0, 0, 0, 1),
+            (0, 0, 1, 1, 1)
+        ))
+        self.assertEqual(next_state(next_state(next_state(m))), (
+            (0, 0, 0, 0, 0),
+            (0, 0, 0, 1, 0),
+            (0, 0, 1, 0, 1),
+            (0, 0, 0, 1, 1)
+        ))
+
 
     def test_liveCell(self):
         self.assertFalse(alive(1, 0))
@@ -124,10 +137,24 @@ class TestGOL(TestCase):
 
 
     def test_Given(self):
-        self.assertEqual(life_counter(((0, 1, 0, 0, 0, 0, 0),
+        self.assertEqual(life_counter(
+            (
+              (0, 1, 0, 0, 0, 0, 0),
               (0, 0, 1, 0, 0, 0, 0),
               (1, 1, 1, 0, 0, 0, 0),
               (0, 0, 0, 0, 0, 1, 1),
               (0, 0, 0, 0, 0, 1, 1),
               (0, 0, 0, 0, 0, 0, 0),
-              (1, 1, 1, 0, 0, 0, 0)), 4), 15)
+              (1, 1, 1, 0, 0, 0, 0)
+            ), 0), 12)
+
+        self.assertEqual(life_counter(
+            (
+              (0, 1, 0, 0, 0, 0, 0),
+              (0, 0, 1, 0, 0, 0, 0),
+              (1, 1, 1, 0, 0, 0, 0),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 0, 0),
+              (1, 1, 1, 0, 0, 0, 0)
+            ), 4), 15)
