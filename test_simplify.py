@@ -16,7 +16,7 @@ class TestProduct(TestCase):
         self.assertEqual(True, p(c(-1), c(1)).negative())
 
     def test___factors(self):
-        self.assertEqual(1, len(p(x(1)).factors))
+        self.assertEqual(1, len(p([x(1)]).factors))
         self.assertSequenceEqual((x(1),), p(x(1)).factors)
 
     def test_PowerTerm(self):
@@ -32,6 +32,11 @@ class TestProduct(TestCase):
         self.assertEqual("8*x**5", p(c(-8), x(5)).abs_fmt())
         self.assertEqual("8*x**5", p(c(8), x(5)).abs_fmt())
 
+
+class TestSum(TestCase):
+
+    def test_simplify_adds_equal_powers(self):
+        self.assertEqual(s(p(c(2), x(1))), s(x(1), x(1)).simplify())
 
 class TestSimplify(TestCase):
 

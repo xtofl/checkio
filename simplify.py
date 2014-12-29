@@ -1,4 +1,4 @@
-from itertools import product, chain
+from itertools import product, chain, groupby
 from operator import mul, add
 from functools import reduce
 from Onboard.pypredict.lm_wrapper import filter_tokens
@@ -85,6 +85,12 @@ class Sum(Expr):
                            list(t.terms for t in filter_type(Sum, simplified_terms)),
                            list())
         other_terms = list(filter_type_not(Sum, simplified_terms))
+
+        all_terms = sum_terms + other_terms
+
+        #group per exponent
+        grouped = groupby(all_terms, lambda t: isinstance(t, Product) and [f for f in t.factors if isinstance(f, Power)][0])
+
         return Sum(*(sum_terms + other_terms))
 
     def abs_fmt(self):
