@@ -25,7 +25,7 @@ def next_row(state, r):
 
 
 def next_state(state):
-    return tuple(tuple(next_row(state, r)) for r in range(len(state)))
+    return count_to_live(state, neighbor_matrix(state))
 
 def neighbor_row(state, r):
     yield from (count_live_around(state, r, c) for c in range(len(state[r])))
@@ -99,8 +99,8 @@ class TestGOL(TestCase):
         self.assertEqual(next_state(m), (
             (0, 0, 0, 0, 0),
             (0, 0, 1, 1, 0),
-            (0, 0, 1, 1, 0),
-            (0, 0, 0, 0, 0)
+            (0, 0, 1, 1, 1),
+            (0, 0, 0, 1, 0)
         ))
 
     def test_liveCell(self):
