@@ -1,5 +1,8 @@
 def life_counter(state, ticks):
-    return 15
+    if ticks == 0:
+        return sum(sum(r) for r in state)
+    else:
+        return life_counter(next_state(state), ticks - 1)
 
 def alive(current, live_neighbors):
     if current:
