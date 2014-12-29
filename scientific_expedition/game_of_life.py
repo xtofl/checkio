@@ -15,8 +15,17 @@ def count_live_around(state, row, col):
     count = 0
     for r, c in ((row + dr, col + dc) for dr, dc in neighbors):
         if 0 <= r < len(state) and 0 <= col < len(state[0]):
+            therow = state[r]
+            thecell = therow[c]
             count += state[r][c]
     return count
+
+def next_row(state, r):
+    yield from (count_live_around(state, r, c) for c in range(len(state[r])))
+
+
+def next_state(state):
+    return tuple(tuple(next_row(state, r)) for r in range(len(state)))
 
 from unittest import TestCase
 
@@ -32,6 +41,20 @@ class TestGOL(TestCase):
         )
         self.assertEqual(count_live_around(m, 0, 0), 0)
         self.assertEqual(count_live_around(m, 0, 2), 1)
+
+    def test_next_state(self):
+        m = (
+            (0, 0, 0, 0, 0),
+            (0, 0, 0, 1, 0),
+            (0, 0, 1, 1, 0),
+            (0, 0, 0, 0, 1)
+        )
+        self.assertEqual(next_state(m), (
+            (0, 0, 0, 0, 0),
+            (0, 0, 1, 1, 0),
+            (0, 0, 1, 1, 0),
+            (0, 0, 0, 0, 0)
+        ))
 
     def test_liveCell(self):
         self.assertFalse(alive(1, 0))
