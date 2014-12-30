@@ -27,22 +27,18 @@ def count_alive_around(state, row, col):
     return count
 
 
-def next_row(state, r):
-    yield from (count_alive_around(state, r, c) for c in range(len(state[r])))
-
-
 def next_state(state):
     enlarged = enlarge(state)
-    processed = count_to_live(enlarged, neighbor_matrix(enlarged))
+    processed = count_to_live(enlarged, count_live_neighbors(enlarged))
     return strip(processed)
 
 
-def neighbor_row(state, r):
+def count_live_neighbors_row(state, r):
     yield from (count_alive_around(state, r, c) for c in range(len(state[r])))
 
 
-def neighbor_matrix(state):
-    return tuple(tuple(neighbor_row(state, r)) for r in range(len(state)))
+def count_live_neighbors(state):
+    return tuple(tuple(count_live_neighbors_row(state, r)) for r in range(len(state)))
 
 
 def count_to_live(state, count):
@@ -114,7 +110,7 @@ class TestGOL(TestCase):
             (0, 0, 1, 1, 0),
             (0, 0, 0, 0, 1)
         )
-        self.assertEqual(neighbor_matrix(m), (
+        self.assertEqual(count_live_neighbors(m), (
             (0, 0, 1, 1, 1),
             (0, 1, 3, 2, 2),
             (0, 1, 2, 3, 3),
