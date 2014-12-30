@@ -7,6 +7,7 @@ def life_counter(state, ticks):
     else:
         return life_counter(next_state(state), ticks - 1)
 
+
 def alive(current, live_neighbors):
     if current:
         return 1 < live_neighbors < 4
@@ -17,6 +18,7 @@ neighbors = ((-1, -1), (-1, 0), (-1, 1),
              ( 0, -1),          ( 0, 1),
              ( 1, -1), ( 1, 0), ( 1, 1))
 
+
 def count_live_around(state, row, col):
     count = 0
     for r, c in ((row + dr, col + dc) for dr, dc in neighbors):
@@ -25,6 +27,7 @@ def count_live_around(state, row, col):
             thecell = therow[c]
             count += state[r][c]
     return count
+
 
 def next_row(state, r):
     yield from (count_live_around(state, r, c) for c in range(len(state[r])))
@@ -35,11 +38,14 @@ def next_state(state):
     processed = count_to_live(enlarged, neighbor_matrix(enlarged))
     return strip(processed)
 
+
 def neighbor_row(state, r):
     yield from (count_live_around(state, r, c) for c in range(len(state[r])))
 
+
 def neighbor_matrix(state):
     return tuple(tuple(neighbor_row(state, r)) for r in range(len(state)))
+
 
 def count_to_live(state, count):
     return tuple(
@@ -58,11 +64,16 @@ def enlarge(state):
         ) + \
         (zeroes, )
 
+
 def left_margin(state):
-    return min(sum(1 for _ in takewhile(lambda c: not c, row)) for row in state)
+    return min(sum(1 for _ in takewhile(lambda c: not c, row))
+               for row in state)
+
 
 def right_margin(state):
-    return min(sum(1 for _ in takewhile(lambda c: not c, reversed(row))) for row in state)
+    return min(sum(1 for _ in takewhile(lambda c: not c, reversed(row)))
+               for row in state)
+
 
 def strip(state):
     #top/bottom row
@@ -81,6 +92,7 @@ def strip(state):
     left = left_margin(stripped_bottom)
     right = len(state[0]) - right_margin(stripped_bottom)
     return tuple(r[left:right] for r in stripped_bottom)
+
 
 from unittest import TestCase
 
