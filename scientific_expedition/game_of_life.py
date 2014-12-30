@@ -49,7 +49,8 @@ def apply_live_rule(state, count_matrix):
 
 
 def grow(state):
-    if not state: return tuple()
+    if not state:
+        return tuple()
     zeroes = (0, ) * (2 + len(state[0]))
     return \
         (zeroes, ) + \
