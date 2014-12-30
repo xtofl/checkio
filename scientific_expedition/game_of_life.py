@@ -14,6 +14,18 @@ def next_state(state):
     return shrink(processed)
 
 
+def count_live_neighbors(state):
+    return tuple(tuple(count_live_neighbors_row(state, r))
+                 for r in range(len(state)))
+
+
+def apply_live_rule(state, count_matrix):
+    return tuple(
+        tuple(int(next_cell_state(current, cnt))
+              for current, cnt in zip(rstate, rcount))
+        for (rstate, rcount) in zip(state, count_matrix))
+
+
 def next_cell_state(current, live_neighbors):
     if current:
         return 1 < live_neighbors < 4
@@ -35,17 +47,6 @@ def count_alive_around(state, row, col):
 
 def count_live_neighbors_row(state, r):
     yield from (count_alive_around(state, r, c) for c in range(len(state[r])))
-
-
-def count_live_neighbors(state):
-    return tuple(tuple(count_live_neighbors_row(state, r)) for r in range(len(state)))
-
-
-def apply_live_rule(state, count_matrix):
-    return tuple(
-        tuple(int(next_cell_state(current, cnt))
-              for current, cnt in zip(rstate, rcount))
-        for (rstate, rcount) in zip(state, count_matrix))
 
 
 def grow(state):
