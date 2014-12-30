@@ -1,3 +1,6 @@
+from itertools import dropwhile, takewhile
+
+
 def life_counter(state, ticks):
     if ticks == 0:
         return sum(sum(r) for r in state)
@@ -28,7 +31,9 @@ def next_row(state, r):
 
 
 def next_state(state):
-    return count_to_live(state, neighbor_matrix(state))
+    enlarged = enlarge(state)
+    processed = count_to_live(enlarged, neighbor_matrix(enlarged))
+    return strip(processed)
 
 def neighbor_row(state, r):
     yield from (count_live_around(state, r, c) for c in range(len(state[r])))
@@ -42,6 +47,38 @@ def count_to_live(state, count):
               for current, cnt in zip(rstate, rcount))
         for (rstate, rcount) in zip(state, count))
 
+
+def enlarge(state):
+    if not state: return tuple()
+    zeroes = (0, ) * (2 + len(state[0]))
+    return \
+        (zeroes, ) + \
+        tuple(
+            (0, ) + row + (0, ) for row in state
+        ) + \
+        (zeroes, )
+
+def left_margin(state):
+    return min(sum(1 for _ in takewhile(lambda c: not c, row)) for row in state)
+
+def right_margin(state):
+    return min(sum(1 for _ in takewhile(lambda c: not c, reversed(row))) for row in state)
+
+def strip(state):
+    #top/bottom row
+    def empty(s):
+        return not s or not s[0]
+    if empty(state): return tuple()
+
+    stripped_top = tuple(dropwhile(lambda r: not any(r), state))
+    if empty(stripped_top): return tuple()
+
+    stripped_bottom = tuple(takewhile(any, stripped_top))
+    if empty(stripped_bottom): return tuple()
+
+    left = left_margin(stripped_bottom)
+    right = len(state[0]) - right_margin(stripped_bottom)
+    return tuple(r[left:right] for r in stripped_bottom)
 
 from unittest import TestCase
 
@@ -92,6 +129,10 @@ class TestGOL(TestCase):
             (0, 0, 0, 1, 0)
         ))
 
+    def test_enlarge(self):
+        self.assertEqual(enlarge(((0,),)), ((0, 0, 0), (0, 0, 0), (0, 0, 0)))
+        self.assertEqual(enlarge(tuple()), tuple())
+
     def test_next_state(self):
         m = (
             (0, 0, 0, 0, 0),
@@ -100,24 +141,43 @@ class TestGOL(TestCase):
             (0, 0, 0, 0, 1)
         )
         self.assertEqual(next_state(m), (
-            (0, 0, 0, 0, 0),
-            (0, 0, 1, 1, 0),
-            (0, 0, 1, 1, 1),
-            (0, 0, 0, 1, 0)
+            (1, 1, 0),
+            (1, 1, 1),
+            (0, 1, 0)
         ))
         self.assertEqual(next_state(next_state(m)), (
-            (0, 0, 0, 0, 0),
-            (0, 0, 1, 0, 1),
-            (0, 0, 0, 0, 1),
-            (0, 0, 1, 1, 1)
+            (1, 0, 1),
+            (0, 0, 1),
+            (1, 1, 1)
         ))
         self.assertEqual(next_state(next_state(next_state(m))), (
-            (0, 0, 0, 0, 0),
-            (0, 0, 0, 1, 0),
-            (0, 0, 1, 0, 1),
-            (0, 0, 0, 1, 1)
+            (0, 1, 0, 0),
+            (1, 0, 1, 1),
+            (0, 1, 1, 0),
+            (0, 1, 0, 0)
         ))
 
+    def test_strip(self):
+        self.assertEqual(strip(tuple()), tuple())
+        self.assertEqual(strip(((0, 0, 0),)), tuple())
+        source = (
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 1, 0, 0, 0),
+            (0, 0, 1, 0, 1, 1, 0),
+            (0, 0, 0, 1, 1, 0, 0),
+            (0, 0, 0, 1, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0)
+        )
+        self.assertEqual(left_margin(source), 2)
+        self.assertEqual(right_margin(source), 1)
+        self.assertEqual(strip(source),
+            (
+                (0, 1, 0, 0),
+                (1, 0, 1, 1),
+                (0, 1, 1, 0),
+                (0, 1, 0, 0)
+            )
+        )
 
     def test_liveCell(self):
         self.assertFalse(alive(1, 0))
@@ -136,7 +196,38 @@ class TestGOL(TestCase):
         self.assertFalse(alive(0, 8))
 
 
-    def test_Given(self):
+    def test_sequence(self):
+        m =  (
+              (0, 1, 0, 0, 0, 0, 0),
+              (0, 0, 1, 0, 0, 0, 0),
+              (1, 1, 1, 0, 0, 0, 0),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 0, 0),
+              (1, 1, 1, 0, 0, 0, 0)
+            )
+        self.assertEqual(next_state(m),
+            (
+              (0, 0, 0, 0, 0, 0, 0),
+              (1, 0, 1, 0, 0, 0, 0),
+              (0, 1, 1, 0, 0, 0, 0),
+              (0, 1, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 1, 0, 0, 0, 0, 0),
+              (0, 1, 0, 0, 0, 0, 0)
+            ))
+        self.assertEqual(next_state(next_state(m)),
+            (
+              (0, 0, 0, 0, 0, 0, 0),
+              (0, 0, 1, 0, 0, 0, 0),
+              (1, 0, 1, 0, 0, 0, 0),
+              (0, 1, 1, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 1, 1),
+              (0, 0, 0, 0, 0, 0, 0),
+              (0, 0, 0, 0, 0, 0, 0)
+            ))
+
+    def test_life_counter_0(self):
         self.assertEqual(life_counter(
             (
               (0, 1, 0, 0, 0, 0, 0),
@@ -148,6 +239,8 @@ class TestGOL(TestCase):
               (1, 1, 1, 0, 0, 0, 0)
             ), 0), 12)
 
+
+    def test_Given(self):
         self.assertEqual(life_counter(
             (
               (0, 1, 0, 0, 0, 0, 0),
