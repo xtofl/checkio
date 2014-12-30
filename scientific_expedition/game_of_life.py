@@ -70,10 +70,12 @@ def strip(state):
         return not s or not s[0]
     if empty(state): return tuple()
 
-    stripped_top = tuple(dropwhile(lambda r: not any(r), state))
+    def stripped(s):
+        return tuple(dropwhile(lambda r: not any(r), s))
+    stripped_top = stripped(state)
     if empty(stripped_top): return tuple()
 
-    stripped_bottom = tuple(takewhile(any, stripped_top))
+    stripped_bottom = tuple(reversed(stripped(tuple(reversed(stripped_top)))))
     if empty(stripped_bottom): return tuple()
 
     left = left_margin(stripped_bottom)
@@ -164,6 +166,7 @@ class TestGOL(TestCase):
             (0, 0, 0, 0, 0, 0, 0),
             (0, 0, 0, 1, 0, 0, 0),
             (0, 0, 1, 0, 1, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0),
             (0, 0, 0, 1, 1, 0, 0),
             (0, 0, 0, 1, 0, 0, 0),
             (0, 0, 0, 0, 0, 0, 0)
@@ -174,6 +177,7 @@ class TestGOL(TestCase):
             (
                 (0, 1, 0, 0),
                 (1, 0, 1, 1),
+                (0, 0, 0, 0),
                 (0, 1, 1, 0),
                 (0, 1, 0, 0)
             )
@@ -208,23 +212,22 @@ class TestGOL(TestCase):
             )
         self.assertEqual(next_state(m),
             (
-              (0, 0, 0, 0, 0, 0, 0),
               (1, 0, 1, 0, 0, 0, 0),
               (0, 1, 1, 0, 0, 0, 0),
               (0, 1, 0, 0, 0, 1, 1),
               (0, 0, 0, 0, 0, 1, 1),
               (0, 1, 0, 0, 0, 0, 0),
+              (0, 1, 0, 0, 0, 0, 0),
               (0, 1, 0, 0, 0, 0, 0)
             ))
         self.assertEqual(next_state(next_state(m)),
             (
-              (0, 0, 0, 0, 0, 0, 0),
               (0, 0, 1, 0, 0, 0, 0),
               (1, 0, 1, 0, 0, 0, 0),
               (0, 1, 1, 0, 0, 1, 1),
               (0, 0, 0, 0, 0, 1, 1),
               (0, 0, 0, 0, 0, 0, 0),
-              (0, 0, 0, 0, 0, 0, 0)
+              (1, 1, 1, 0, 0, 0, 0),
             ))
 
     def test_life_counter_0(self):
