@@ -8,7 +8,7 @@ def life_counter(state, ticks):
         return life_counter(next_state(state), ticks - 1)
 
 
-def alive(current, live_neighbors):
+def next_cell_state(current, live_neighbors):
     if current:
         return 1 < live_neighbors < 4
     else:
@@ -49,7 +49,7 @@ def neighbor_matrix(state):
 
 def count_to_live(state, count):
     return tuple(
-        tuple(int(alive(current, cnt))
+        tuple(int(next_cell_state(current, cnt))
               for current, cnt in zip(rstate, rcount))
         for (rstate, rcount) in zip(state, count))
 
@@ -196,20 +196,20 @@ class TestGOL(TestCase):
         )
 
     def test_liveCell(self):
-        self.assertFalse(alive(1, 0))
-        self.assertFalse(alive(1, 1))
-        self.assertTrue(alive(1, 2))
-        self.assertTrue(alive(1, 3))
-        self.assertFalse(alive(1, 4))
-        self.assertFalse(alive(1, 8))
+        self.assertFalse(next_cell_state(1, 0))
+        self.assertFalse(next_cell_state(1, 1))
+        self.assertTrue(next_cell_state(1, 2))
+        self.assertTrue(next_cell_state(1, 3))
+        self.assertFalse(next_cell_state(1, 4))
+        self.assertFalse(next_cell_state(1, 8))
 
     def test_deadCell(self):
-        self.assertFalse(alive(0, 0))
-        self.assertFalse(alive(0, 1))
-        self.assertFalse(alive(0, 2))
-        self.assertTrue(alive(0, 3))
-        self.assertFalse(alive(0, 4))
-        self.assertFalse(alive(0, 8))
+        self.assertFalse(next_cell_state(0, 0))
+        self.assertFalse(next_cell_state(0, 1))
+        self.assertFalse(next_cell_state(0, 2))
+        self.assertTrue(next_cell_state(0, 3))
+        self.assertFalse(next_cell_state(0, 4))
+        self.assertFalse(next_cell_state(0, 8))
 
 
     def test_sequence(self):
