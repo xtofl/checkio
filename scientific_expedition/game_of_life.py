@@ -8,6 +8,12 @@ def life_counter(state, ticks):
         return life_counter(next_state(state), ticks - 1)
 
 
+def next_state(state):
+    enlarged = grow(state)
+    processed = apply_live_rule(enlarged, count_live_neighbors(enlarged))
+    return shrink(processed)
+
+
 def next_cell_state(current, live_neighbors):
     if current:
         return 1 < live_neighbors < 4
@@ -25,12 +31,6 @@ def count_alive_around(state, row, col):
         if 0 <= r < len(state) and 0 <= c < len(state[0]):
             count += state[r][c]
     return count
-
-
-def next_state(state):
-    enlarged = grow(state)
-    processed = apply_live_rule(enlarged, count_live_neighbors(enlarged))
-    return shrink(processed)
 
 
 def count_live_neighbors_row(state, r):
