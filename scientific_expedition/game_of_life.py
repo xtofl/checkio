@@ -262,3 +262,17 @@ class TestGOL(TestCase):
               (0, 0, 0, 0, 0, 0, 0),
               (1, 1, 1, 0, 0, 0, 0)
             ), 4), 15)
+
+        self.assertEqual(life_counter(
+            (
+                (0,1,0),
+                (0,0,1),
+                (1,1,1),
+            ), 50), 5)
+
+        self.assertEqual(life_counter(
+            (
+                (0,1,0),
+                (0,0,1),
+                (1,1,1),
+            ), 100), 5)
