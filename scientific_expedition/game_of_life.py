@@ -5,7 +5,7 @@ def life_counter(state, ticks):
     for t in range(ticks):
         state = next_state(state)
     return sum(sum(r) for r in state)
-        
+
 
 def next_state(state):
     enlarged = grow(state)
@@ -55,7 +55,7 @@ def grow(state):
     return \
         (zeroes, ) + \
         tuple(
-            (0, ) + row + (0, ) for row in state
+            (0, ) + tuple(row) + (0, ) for row in state
         ) + \
         (zeroes, )
 
