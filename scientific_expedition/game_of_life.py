@@ -29,7 +29,7 @@ def count_alive_around(state, row, col):
 
 def next_state(state):
     enlarged = enlarge(state)
-    processed = count_to_live(enlarged, count_live_neighbors(enlarged))
+    processed = apply_live_rule(enlarged, count_live_neighbors(enlarged))
     return strip(processed)
 
 
@@ -41,11 +41,11 @@ def count_live_neighbors(state):
     return tuple(tuple(count_live_neighbors_row(state, r)) for r in range(len(state)))
 
 
-def count_to_live(state, count):
+def apply_live_rule(state, count_matrix):
     return tuple(
         tuple(int(next_cell_state(current, cnt))
               for current, cnt in zip(rstate, rcount))
-        for (rstate, rcount) in zip(state, count))
+        for (rstate, rcount) in zip(state, count_matrix))
 
 
 def enlarge(state):
@@ -130,7 +130,7 @@ class TestGOL(TestCase):
             (0, 1, 2, 3, 3),
             (0, 1, 2, 3, 1)
         )
-        self.assertEqual(count_to_live(m, c), (
+        self.assertEqual(apply_live_rule(m, c), (
             (0, 0, 0, 0, 0),
             (0, 0, 1, 1, 0),
             (0, 0, 1, 1, 1),
