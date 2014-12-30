@@ -28,9 +28,9 @@ def count_alive_around(state, row, col):
 
 
 def next_state(state):
-    enlarged = enlarge(state)
+    enlarged = grow(state)
     processed = apply_live_rule(enlarged, count_live_neighbors(enlarged))
-    return strip(processed)
+    return shrink(processed)
 
 
 def count_live_neighbors_row(state, r):
@@ -48,7 +48,7 @@ def apply_live_rule(state, count_matrix):
         for (rstate, rcount) in zip(state, count_matrix))
 
 
-def enlarge(state):
+def grow(state):
     if not state: return tuple()
     zeroes = (0, ) * (2 + len(state[0]))
     return \
@@ -59,17 +59,7 @@ def enlarge(state):
         (zeroes, )
 
 
-def left_margin(state):
-    return min(sum(1 for _ in takewhile(lambda c: not c, row))
-               for row in state)
-
-
-def right_margin(state):
-    return min(sum(1 for _ in takewhile(lambda c: not c, reversed(row)))
-               for row in state)
-
-
-def strip(state):
+def shrink(state):
     #top/bottom row
     def empty(s):
         return not s or not s[0]
@@ -86,6 +76,16 @@ def strip(state):
     left = left_margin(stripped_bottom)
     right = len(state[0]) - right_margin(stripped_bottom)
     return tuple(r[left:right] for r in stripped_bottom)
+
+
+def left_margin(state):
+    return min(sum(1 for _ in takewhile(lambda c: not c, row))
+               for row in state)
+
+
+def right_margin(state):
+    return min(sum(1 for _ in takewhile(lambda c: not c, reversed(row)))
+               for row in state)
 
 
 from unittest import TestCase
@@ -138,8 +138,8 @@ class TestGOL(TestCase):
         ))
 
     def test_enlarge(self):
-        self.assertEqual(enlarge(((0,),)), ((0, 0, 0), (0, 0, 0), (0, 0, 0)))
-        self.assertEqual(enlarge(tuple()), tuple())
+        self.assertEqual(grow(((0,),)), ((0, 0, 0), (0, 0, 0), (0, 0, 0)))
+        self.assertEqual(grow(tuple()), tuple())
 
     def test_next_state(self):
         m = (
@@ -166,8 +166,8 @@ class TestGOL(TestCase):
         ))
 
     def test_strip(self):
-        self.assertEqual(strip(tuple()), tuple())
-        self.assertEqual(strip(((0, 0, 0),)), tuple())
+        self.assertEqual(shrink(tuple()), tuple())
+        self.assertEqual(shrink(((0, 0, 0),)), tuple())
         source = (
             (0, 0, 0, 0, 0, 0, 0),
             (0, 0, 0, 1, 0, 0, 0),
@@ -179,7 +179,7 @@ class TestGOL(TestCase):
         )
         self.assertEqual(left_margin(source), 2)
         self.assertEqual(right_margin(source), 1)
-        self.assertEqual(strip(source),
+        self.assertEqual(shrink(source),
             (
                 (0, 1, 0, 0),
                 (1, 0, 1, 1),
