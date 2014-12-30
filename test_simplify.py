@@ -9,22 +9,36 @@ from simplify import \
 
 __author__ = 'xtofl'
 
-class TestSimplify(TestCase):
 
-    def test_Product(self):
+class TestProduct(TestCase):
+
+    def test_Negative(self):
         self.assertEqual(True, p(c(-1), c(1)).negative())
 
-        self.assertEqual(1, len(p(x(1)).factors))
+    def test___factors(self):
+        self.assertEqual(1, len(p([x(1)]).factors))
         self.assertSequenceEqual((x(1),), p(x(1)).factors)
 
-    def test_Product_PowerTerm(self):
+    def test_PowerTerm(self):
         self.assertEqual(x(2), p(x(2)).power_factors())
         self.assertEqual(x(5), p(x(2), x(3)).power_factors())
         self.assertEqual(None, p(x(2), x(-2)).power_factors())
 
-    def test_Product_ConstantTerm(self):
+    def test_ConstantTerm(self):
         self.assertEqual(c(5), p(c(5)).constant_factor())
         self.assertEqual(c(15), p(c(5), c(3)).constant_factor())
+
+    def test_Format(self):
+        self.assertEqual("8*x**5", p(c(-8), x(5)).abs_fmt())
+        self.assertEqual("8*x**5", p(c(8), x(5)).abs_fmt())
+
+
+class TestSum(TestCase):
+
+    def test_simplify_adds_equal_powers(self):
+        self.assertEqual(s(p(c(2), x(1))), s(x(1), x(1)).simplify())
+
+class TestSimplify(TestCase):
 
     def test_sum_factors(self):
         c1, c2, c3 = c(1), c(2), c(3)
@@ -47,7 +61,7 @@ class TestSimplify(TestCase):
         self.assertEqual(c(10), p(c(2), p(c(5))).simplify())
         self.assertEqual(c(10), p(p(c(5)), c(2)).simplify())
 
-    def test_Distributivity(self):
+    def test_Distributivity_of_Multiplication(self):
         def eq(expect, original):
             self.assertEqual(expect, original.apply_distributivity())
 

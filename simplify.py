@@ -1,4 +1,4 @@
-from itertools import product, chain
+from itertools import product, chain, groupby
 from operator import mul, add
 from functools import reduce
 from Onboard.pypredict.lm_wrapper import filter_tokens
@@ -50,10 +50,10 @@ class Power(Expr):
 
 
 def filter_type(t, it):
-    return (i for i in it if type(it) is t)
+    return (i for i in it if isinstance(it, t))
 
 def filter_type_not(t, it):
-    return (i for i in it if not type(it) is t)
+    return (i for i in it if not isinstance(it, t))
 
 
 class Sum(Expr):
@@ -85,6 +85,12 @@ class Sum(Expr):
                            list(t.terms for t in filter_type(Sum, simplified_terms)),
                            list())
         other_terms = list(filter_type_not(Sum, simplified_terms))
+
+        all_terms = sum_terms + other_terms
+
+        #group per exponent
+        grouped = groupby(all_terms, lambda t: isinstance(t, Product) and [f for f in t.factors if isinstance(f, Power)][0])
+
         return Sum(*(sum_terms + other_terms))
 
     def abs_fmt(self):
@@ -118,8 +124,8 @@ class Product(Expr):
         return sum((f.negative() for f in self.factors)) % 2 == 1
 
     def power_factors(self):
-        powers = tuple(filter_type(Power, self.factors))
-        exponent = reduce(add, (p.exponent for p in powers), 0)
+        powers = tuple(f for f in self.factors if isinstance(f, Power))
+        exponent = sum(p.exponent for p in powers)
         return Power(exponent) if exponent else None
 
     def constant_factor(self):
