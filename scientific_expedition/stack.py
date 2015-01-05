@@ -12,18 +12,16 @@ def peek(stack, total):
     return stack, total + stack[-1]
 
 
-def digit_stack(series):
-    stack, total = [], 0
-    for command in series:
-        tokens = command.split()
-        stack, total = \
+digit_stack=d=lambda queue, stack='0', total=0:\
+        total if len(queue) == 0\
+        else \
+        (
             {
-                "PUSH": lambda: push(stack, int(tokens[1]), total),
-                "POP": lambda: pop(stack, total),
-                "PEEK": lambda: peek(stack, total)
-            }[tokens[0]]()
-    return total
-
+                "PUSH": lambda: d(queue[1:], queue[0][5]+stack, total),
+                "POP": lambda: d(queue[1:], stack[1:] or '0', total+int(stack[0])),
+                "PEEK": lambda: d(queue[1:], stack, total+int(stack[0]))
+            }[queue[0].split()[0]]()
+        )
 
 from unittest import TestCase
 
