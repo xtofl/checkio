@@ -25,12 +25,12 @@ class PC:
         self.infected_time = None
         self.clock = clock
 
+    def update_connections(self, pcs):
+        self.__connections = [pcs[i] for i in self.__connected_indices]
+
     def infected(self):
         return self.infected_time != None and \
                self.infected_time <= self.clock.time()
-
-    def update_connections(self, pcs):
-        self.__connections = [pcs[i] for i in self.__connected_indices]
 
     def connections(self):
         return self.__connections
