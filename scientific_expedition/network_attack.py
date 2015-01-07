@@ -1,16 +1,16 @@
 from collections import defaultdict
 from functools import partial
 
-def capture(grid_definition, maxlevel=1000):
+
+def capture(grid_definition):
 
     pcs = [PC(row, i) for i, row in enumerate(grid_definition)]
     for pc in pcs:
         pc.update_connections(pcs)
 
     clock = Ticker()
-    virus = Virus()
     pcs[0].infect(clock.time())
-    virus.spread(pcs[0], clock)
+    spread_virus(pcs[0], clock)
 
     while any(not pc.infected(clock.time()) for pc in pcs):
         clock.tick()
@@ -39,7 +39,7 @@ class PC:
     def start_infection(self, virus, clock):
         infection_done = clock.time() + self.security_level()
         if self.infect(infection_done):
-            clock.schedule(infection_done, partial(virus.spread, self, clock))
+            clock.schedule(infection_done, partial(virus, self, clock))
 
     def infect(self, time):
         if not self.infected_time:
@@ -49,10 +49,9 @@ class PC:
             return False
 
 
-class Virus:
-    def spread(self, origin, clock):
-        for target in origin.connections():
-            target.start_infection(self, clock)
+def spread_virus(origin, clock):
+    for target in origin.connections():
+        target.start_infection(spread_virus, clock)
 
 
 class Ticker:
