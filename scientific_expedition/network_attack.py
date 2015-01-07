@@ -2,10 +2,10 @@ from collections import defaultdict
 from functools import partial
 
 
-def capture(grid_definition):
+def capture(matrix):
     clock = Clock()
 
-    pcs = [PC(row, i, clock) for i, row in enumerate(grid_definition)]
+    pcs = [PC(row, i, clock) for i, row in enumerate(matrix)]
     for pc in pcs:
         pc.update_connections(pcs)
 
