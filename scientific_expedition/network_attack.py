@@ -76,7 +76,6 @@ class Clock:
 from unittest import TestCase
 from mockito import mock, verify, when
 from mockito.mocking import mock
-from mockito.matchers import any as matchany
 
 class TestCapture(TestCase):
 
