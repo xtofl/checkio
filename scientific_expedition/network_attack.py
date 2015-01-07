@@ -10,7 +10,7 @@ def capture(grid_definition):
         pc.update_connections(pcs)
 
     pcs[0].infect(clock.time())
-    spread_virus(pcs[0])
+    spread_virus(pcs[0].connections())
 
     while any(not pc.infected() for pc in pcs):
         clock.tick()
@@ -38,7 +38,7 @@ class PC:
     def start_infection(self, virus):
         infection_done = self.clock.time() + self.__security_level
         if self.infect(infection_done):
-            self.clock.schedule(infection_done, partial(virus, self))
+            self.clock.schedule(infection_done, partial(virus, self.__connections))
 
     def infect(self, time):
         if not self.infected_time:
@@ -48,8 +48,8 @@ class PC:
             return False
 
 
-def spread_virus(origin):
-    for target in origin.connections():
+def spread_virus(connections):
+    for target in connections:
         target.start_infection(spread_virus)
 
 
