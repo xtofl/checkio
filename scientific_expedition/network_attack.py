@@ -3,43 +3,42 @@ from functools import partial
 
 
 def capture(grid_definition):
+    clock = Ticker()
 
-    pcs = [PC(row, i) for i, row in enumerate(grid_definition)]
+    pcs = [PC(row, i, clock) for i, row in enumerate(grid_definition)]
     for pc in pcs:
         pc.update_connections(pcs)
 
-    clock = Ticker()
     pcs[0].infect(clock.time())
-    spread_virus(pcs[0], clock)
+    spread_virus(pcs[0])
 
-    while any(not pc.infected(clock.time()) for pc in pcs):
+    while any(not pc.infected() for pc in pcs):
         clock.tick()
 
     return max(pc.infected_time for pc in pcs)
 
 
 class PC:
-    def __init__(self, row, i):
-        self.connected_indices = [j for j, v in enumerate(row) if j != i and v]
-        self.security_level = lambda: row[i]
+    def __init__(self, row, i, clock):
+        self.__connected_indices = [j for j, v in enumerate(row) if j != i and v]
+        self.__security_level = row[i]
         self.infected_time = None
+        self.clock = clock
 
-    def infected(self, t):
-        if self.infected_time:
-            return self.infected_time <= t
-        else:
-            return False
+    def infected(self):
+        return self.infected_time != None and \
+               self.infected_time <= self.clock.time()
 
     def update_connections(self, pcs):
-        self.__connections = [pcs[i] for i in self.connected_indices]
+        self.__connections = [pcs[i] for i in self.__connected_indices]
 
     def connections(self):
         return self.__connections
 
-    def start_infection(self, virus, clock):
-        infection_done = clock.time() + self.security_level()
+    def start_infection(self, virus):
+        infection_done = self.clock.time() + self.__security_level
         if self.infect(infection_done):
-            clock.schedule(infection_done, partial(virus, self, clock))
+            self.clock.schedule(infection_done, partial(virus, self))
 
     def infect(self, time):
         if not self.infected_time:
@@ -49,9 +48,9 @@ class PC:
             return False
 
 
-def spread_virus(origin, clock):
+def spread_virus(origin):
     for target in origin.connections():
-        target.start_infection(spread_virus, clock)
+        target.start_infection(spread_virus)
 
 
 class Ticker:
