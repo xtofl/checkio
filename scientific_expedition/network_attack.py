@@ -3,13 +3,13 @@ from functools import partial
 
 
 def capture(grid_definition):
-    clock = Ticker()
+    clock = Clock()
 
     pcs = [PC(row, i, clock) for i, row in enumerate(grid_definition)]
     for pc in pcs:
         pc.update_connections(pcs)
 
-    pcs[0].infect(clock.time())
+    pcs[0].infected_time = clock.time()
     spread_virus(pcs[0].connections())
 
     while any(not pc.infected() for pc in pcs):
@@ -21,7 +21,7 @@ def capture(grid_definition):
 class PC:
     def __init__(self, row, i, clock):
         self.__connected_indices = [j for j, v in enumerate(row) if j != i and v]
-        self.__security_level = row[i]
+        self.security_level = row[i]
         self.infected_time = None
         self.clock = clock
 
@@ -36,7 +36,7 @@ class PC:
         return self.__connections
 
     def start_infection(self, virus):
-        infection_done = self.clock.time() + self.__security_level
+        infection_done = self.clock.time() + self.security_level
         if self.infect(infection_done):
             self.clock.schedule(infection_done, partial(virus, self.__connections))
 
@@ -53,7 +53,7 @@ def spread_virus(connections):
         target.start_infection(spread_virus)
 
 
-class Ticker:
+class Clock:
     def __init__(self, t=0):
         self.q = defaultdict()
         self.__time = t
@@ -83,7 +83,7 @@ class TestCapture(TestCase):
 
     def test_clock_executes_when_time_is_due(self):
         m = mock()
-        c = Ticker(9)
+        c = Clock(9)
         c.schedule(10, m.exec)
         c.schedule(10, m.exec)
         c.tick()
@@ -91,49 +91,21 @@ class TestCapture(TestCase):
         c.tick()
         verify(m, 2).exec()
 
-    def test_spreading_schedules_after_due_time(self):
-        clock = mock()
-        pc = mock()
-        connections = [mock(), mock()]
-        for target in connections:
-            when(target).connections().thenReturn([])
-            when(target).security_level().thenReturn(1)
-            when(target).infect(6).thenReturn(True)
-        when(pc).connections().thenReturn(connections)
-        when(clock).time().thenReturn(5)
-
-        v = Virus()
-        v.spread(pc, clock)
-
-        verify(clock, 2).schedule(6, matchany())
-
     def test_PC_initialization(self):
-        pc = PC([1, 8, 1, 1, 0, 0], 1)
+        pc = PC([1, 8, 1, 1, 0, 0], 1, mock())
         pcs = [mock(), mock(), mock(), mock(), mock(), mock()]
         pc.update_connections(pcs)
         self.assertEqual([pcs[0], pcs[2], pcs[3]], pc.connections())
-        self.assertEqual(8, pc.security_level())
+        self.assertEqual(8, pc.security_level)
 
     def test_pc_infection_takes_time(self):
-        pc = PC([1, 8, 1, 1, 0, 0], 1)
-        pc.infect(10)
-        self.assertEqual(10, pc.infected_time)
-        self.assertFalse(pc.infected(9))
-        self.assertTrue(pc.infected(10))
-        self.assertTrue(pc.infected(11))
-
-    def test_virus_spreads_to_connections(self):
-        pc = mock()
         clock = mock()
-        pcs = [mock()]
-        for pc in pcs:
-            when(pc).infect(any()).thenReturn(True)
-            when(pc).security_level().thenReturn(6)
-        when(pc).connections().thenReturn(pcs)
-        v = Virus()
-        when(clock).time().thenReturn(5)
-        v.spread(pc, clock)
-        verify(clock).schedule(11, matchany())
+        pc = PC([1, 8, 1, 1, 0, 0], 1, clock)
+        pc.infect(10)
+        when(clock).time().thenReturn(9)
+        self.assertFalse(pc.infected())
+        when(clock).time().thenReturn(10)
+        self.assertTrue(pc.infected())
 
     def test_Given(self):
         self.assertEqual(capture(
