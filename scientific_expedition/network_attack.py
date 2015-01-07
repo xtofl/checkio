@@ -16,6 +16,11 @@ def capture(matrix):
     return max(pc.infected_time for pc in pcs)
 
 
+def spread_virus(connections):
+    for target in connections:
+        target.start_infection(spread_virus)
+
+
 def create_pcs(clock, matrix):
     pcs = [PC(row, i, clock) for i, row in enumerate(matrix)]
     for pc in pcs:
@@ -48,11 +53,6 @@ class PC:
             return True
         else:
             return False
-
-
-def spread_virus(connections):
-    for target in connections:
-        target.start_infection(spread_virus)
 
 
 class Clock:
