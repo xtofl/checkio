@@ -8,7 +8,7 @@ def capture(matrix):
     pcs = create_pcs(clock, matrix)
 
     pcs[0].infected_time = clock.time()
-    spread_virus(pcs[0].connections())
+    spread_virus(pcs[0].connections)
 
     while any(not pc.infected() for pc in pcs):
         clock.tick()
@@ -25,25 +25,22 @@ def create_pcs(clock, matrix):
 
 class PC:
     def __init__(self, row, i, clock):
+        self.clock = clock
         self.__connected_indices = [j for j, v in enumerate(row) if j != i and v]
         self.security_level = row[i]
         self.infected_time = None
-        self.clock = clock
 
     def update_connections(self, pcs):
-        self.__connections = [pcs[i] for i in self.__connected_indices]
+        self.connections = [pcs[i] for i in self.__connected_indices]
 
     def infected(self):
         return self.infected_time != None and \
                self.infected_time <= self.clock.time()
 
-    def connections(self):
-        return self.__connections
-
     def start_infection(self, virus):
         infection_done = self.clock.time() + self.security_level
         if self.infect(infection_done):
-            self.clock.schedule(infection_done, partial(virus, self.__connections))
+            self.clock.schedule(infection_done, partial(virus, self.connections))
 
     def infect(self, time):
         if not self.infected_time:
@@ -99,7 +96,7 @@ class TestCapture(TestCase):
         pc = PC([1, 8, 1, 1, 0, 0], 1, mock())
         pcs = [mock(), mock(), mock(), mock(), mock(), mock()]
         pc.update_connections(pcs)
-        self.assertEqual([pcs[0], pcs[2], pcs[3]], pc.connections())
+        self.assertEqual([pcs[0], pcs[2], pcs[3]], pc.connections)
         self.assertEqual(8, pc.security_level)
 
     def test_pc_infection_takes_time(self):
