@@ -5,9 +5,7 @@ from functools import partial
 def capture(matrix):
     clock = Clock()
 
-    pcs = [PC(row, i, clock) for i, row in enumerate(matrix)]
-    for pc in pcs:
-        pc.update_connections(pcs)
+    pcs = create_pcs(clock, matrix)
 
     pcs[0].infected_time = clock.time()
     spread_virus(pcs[0].connections())
@@ -16,6 +14,13 @@ def capture(matrix):
         clock.tick()
 
     return max(pc.infected_time for pc in pcs)
+
+
+def create_pcs(clock, matrix):
+    pcs = [PC(row, i, clock) for i, row in enumerate(matrix)]
+    for pc in pcs:
+        pc.update_connections(pcs)
+    return pcs
 
 
 class PC:
